@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi-Gaming Quiz Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Beaufort:wght@400;700&family=Spiegel:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@400;500;900&family=Press+Start+2P&family=Oswald:wght@700&family=Luckiest+Guy&family=Rye&display=swap");
+
+      :root {
+        /* Variables par défaut */
+        --primary-color: #c8aa6e;
+        --secondary-color: #0ac8b9;
+        --bg-start: #091428;
+        --bg-end: #010a13;
+        --text-main: #f0e6d2;
+        --border-color: #3c3c41;
+        --font-main: "Roboto", sans-serif;
+        --font-title: "Cinzel", serif;
+      }
+
+      body {
+        font-family: var(--font-main);
+        background-color: var(--bg-end);
+        background-image: radial-gradient(circle at center, var(--bg-start) 0%, var(--bg-end) 100%);
+        color: var(--text-main);
+        overflow-x: hidden;
+        transition: background 0.5s ease;
+      }
+
+      h1,
+      h2,
+      h3,
+      .title-font {
+        font-family: var(--font-title);
+      }
+
+      /* Classes dynamiques basées sur les variables CSS */
+      .theme-text-primary {
+        color: var(--primary-color);
+      }
+      .theme-text-secondary {
+        color: var(--secondary-color);
+      }
+      .theme-border {
+        border-color: var(--primary-color);
+      }
+      .theme-bg-primary {
+        background-color: var(--primary-color);
+      }
+
+      .theme-btn {
+        background: rgba(0, 0, 0, 0.3);
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        position: relative;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        font-family: var(--font-title);
+      }
+
+      .theme-btn:hover {
+        background: var(--primary-color);
+        color: #000;
+        box-shadow: 0 0 20px var(--primary-color);
+        transform: translateY(-2px);
+      }
+
+      .theme-btn.disabled-btn {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
+      /* Cards pour la sélection de jeu */
+      .game-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        overflow: hidden;
+      }
+      .game-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        border-color: var(--hover-color, #fff);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+
+      /* Utilitaires Quiz */
+      .correct-answer {
+        background: rgba(0, 255, 0, 0.2) !important;
+        border-color: #00ff00 !important;
+        color: #00ff00 !important;
+      }
+      .wrong-answer {
+        background: rgba(255, 0, 0, 0.2) !important;
+        border-color: #ff0000 !important;
+        color: #ff0000 !important;
+      }
+
+      /* Décorations spécifiques */
+      .decorative-frame {
+        position: relative;
+      }
+      .decorative-frame::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border: 1px solid var(--primary-color);
+        z-index: -1;
+        opacity: 0.5;
+        transition: border-color 0.5s ease;
+      }
+
+      /* Difficultés */
+      .difficulty-card:hover {
+        filter: brightness(1.2);
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center p-4">
+    <!-- Container Principal -->
+    <div id="main-container" class="w-full max-w-7xl bg-black/80 backdrop-blur-md border border-gray-700 p-1 decorative-frame shadow-2xl relative fade-in rounded-xl">
+      <div class="p-6 md:p-10 text-center relative z-10">
+        <!-- ÉCRAN SÉLECTION DU JEU -->
+        <div id="select-screen">
+          <div class="mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-2" style="font-family: 'Oswald', sans-serif">GAMING QUIZ HUB</h1>
+            <p class="text-gray-400">Choisissez votre univers</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mx-auto">
+            <!-- Carte LoL -->
+            <div onclick="initGame('lol')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #c8aa6e">
+              <div class="absolute inset-0 bg-gradient-to-br from-blue-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-fist-raised text-4xl mb-4 text-[#C8AA6E]"></i>
+              <h3 class="text-lg font-bold text-[#C8AA6E] mb-2 font-serif">League of Legends</h3>
+            </div>
+
+            <!-- Carte Valorant -->
+            <div onclick="initGame('valorant')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ff4655">
+              <div class="absolute inset-0 bg-gradient-to-br from-red-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-crosshairs text-4xl mb-4 text-[#ff4655]"></i>
+              <h3 class="text-lg font-bold text-[#ff4655] mb-2" style="font-family: 'Oswald', sans-serif">VALORANT</h3>
+            </div>
+
+            <!-- Carte GTA -->
+            <div onclick="initGame('gta')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #4caf50">
+              <div class="absolute inset-0 bg-gradient-to-br from-green-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-car text-4xl mb-4 text-[#4caf50]"></i>
+              <h3 class="text-lg font-bold text-[#4caf50] mb-2" style="font-family: 'Oswald', sans-serif">Grand Theft Auto</h3>
+            </div>
+
+            <!-- Carte Minecraft -->
+            <div onclick="initGame('minecraft')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #8bc34a">
+              <div class="absolute inset-0 bg-gradient-to-br from-green-800/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-cube text-4xl mb-4 text-[#8bc34a]"></i>
+              <h3 class="text-lg font-bold text-[#8bc34a] mb-2" style="font-family: 'Press Start 2P', cursive; font-size: 0.7rem; line-height: 1.5rem">Minecraft</h3>
+            </div>
+
+            <!-- Carte Tekken -->
+            <div onclick="initGame('tekken')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ff3333">
+              <div class="absolute inset-0 bg-gradient-to-br from-red-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-fire text-4xl mb-4 text-[#FF3333]"></i>
+              <h3 class="text-lg font-bold text-[#FF3333] mb-2" style="font-family: 'Oswald', sans-serif">TEKKEN</h3>
+            </div>
+
+            <!-- Carte Assassin's Creed -->
+            <div onclick="initGame('ac')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #a60000">
+              <div class="absolute inset-0 bg-gradient-to-br from-gray-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-user-secret text-4xl mb-4 text-[#A60000]"></i>
+              <h3 class="text-lg font-bold text-[#d4af37] mb-2" style="font-family: 'Cinzel', serif">Assassin's Creed</h3>
+            </div>
+
+            <!-- Carte Mario -->
+            <div onclick="initGame('mario')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ff0000">
+              <div class="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-gamepad text-4xl mb-4 text-[#FF0000]"></i>
+              <h3 class="text-lg font-bold text-[#FF0000] mb-2" style="font-family: 'Press Start 2P', cursive; font-size: 0.7rem; line-height: 1.5rem">Super Mario</h3>
+            </div>
+
+            <!-- Carte Ratchet -->
+            <div onclick="initGame('ratchet')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #f27200">
+              <div class="absolute inset-0 bg-gradient-to-br from-blue-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-robot text-4xl mb-4 text-[#F27200]"></i>
+              <h3 class="text-lg font-bold text-[#F27200] mb-2" style="font-family: 'Oswald', sans-serif">Ratchet: Gladiator</h3>
+            </div>
+
+            <!-- Carte Zelda -->
+            <div onclick="initGame('zelda')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ffd700">
+              <div class="absolute inset-0 bg-gradient-to-br from-green-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-triforce text-4xl mb-4 text-[#ffd700]"></i>
+              <h3 class="text-lg font-bold text-[#ffd700] mb-2" style="font-family: 'Cinzel', serif">The Legend of Zelda</h3>
+            </div>
+
+            <!-- Carte Pokémon -->
+            <div onclick="initGame('pokemon')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ffcb05">
+              <div class="absolute inset-0 bg-gradient-to-br from-red-600/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-bolt text-4xl mb-4 text-[#ffcb05]"></i>
+              <h3 class="text-lg font-bold text-[#ffcb05] mb-2" style="font-family: 'Luckiest Guy', cursive">Pokémon</h3>
+            </div>
+
+            <!-- Carte Fortnite -->
+            <div onclick="initGame('fortnite')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #9d4dbb">
+              <div class="absolute inset-0 bg-gradient-to-br from-blue-600/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-hammer text-4xl mb-4 text-[#9d4dbb]"></i>
+              <h3 class="text-lg font-bold text-[#9d4dbb] mb-2" style="font-family: 'Luckiest Guy', cursive">Fortnite</h3>
+            </div>
+
+            <!-- Carte God of War -->
+            <div onclick="initGame('gow')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #d32f2f">
+              <div class="absolute inset-0 bg-gradient-to-br from-red-800/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-skull text-4xl mb-4 text-[#d32f2f]"></i>
+              <h3 class="text-lg font-bold text-[#d32f2f] mb-2" style="font-family: 'Cinzel', serif">God of War</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- ÉCRAN SÉLECTION DIFFICULTÉ -->
+        <div id="difficulty-screen" class="hidden">
+          <button onclick="goHome()" class="absolute top-0 left-0 text-gray-500 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i> Retour</button>
+
+          <div class="mb-8">
+            <h2 id="diff-game-title" class="text-3xl font-bold theme-text-primary mb-2">JEU</h2>
+            <p class="text-gray-400">Choisissez votre niveau de défi</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            <button onclick="selectDifficulty('easy')" class="difficulty-card p-6 rounded-lg border border-green-500 bg-green-900/20 text-green-400 transition-all">
+              <div class="text-2xl font-bold mb-1">FACILE</div>
+              <div class="text-xs opacity-70">Pour les débutants</div>
+            </button>
+            <button onclick="selectDifficulty('medium')" class="difficulty-card p-6 rounded-lg border border-yellow-500 bg-yellow-900/20 text-yellow-400 transition-all">
+              <div class="text-2xl font-bold mb-1">MOYEN</div>
+              <div class="text-xs opacity-70">Le défi standard</div>
+            </button>
+            <button onclick="selectDifficulty('hard')" class="difficulty-card p-6 rounded-lg border border-red-500 bg-red-900/20 text-red-400 transition-all">
+              <div class="text-2xl font-bold mb-1">DIFFICILE</div>
+              <div class="text-xs opacity-70">Pour les experts</div>
+            </button>
+            <button onclick="selectDifficulty('hardcore')" class="difficulty-card p-6 rounded-lg border border-purple-500 bg-purple-900/20 text-purple-400 transition-all">
+              <div class="text-2xl font-bold mb-1"><i class="fas fa-skull"></i> HARDCORE</div>
+              <div class="text-xs opacity-70">Connaissances obscures requises</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- ÉCRAN DU QUIZ -->
+        <div id="quiz-screen" class="hidden">
+          <div class="flex justify-between items-start mb-2">
+            <button onclick="showDifficultyScreen()" class="text-gray-500 hover:text-white transition-colors text-sm"><i class="fas fa-arrow-left"></i> Changer difficulté</button>
+            <span id="current-difficulty-badge" class="px-2 py-1 rounded text-xs font-bold bg-gray-800 text-gray-400">MOYEN</span>
+          </div>
+
+          <div class="mb-2">
+            <h2 id="game-title" class="text-xl md:text-2xl theme-text-primary tracking-widest opacity-80">JEU</h2>
+          </div>
+
+          <!-- En-tête du Quiz -->
+          <div class="flex justify-between items-end mb-6 border-b border-gray-700 pb-4">
+            <div class="text-left">
+              <span class="text-xs text-gray-500 uppercase tracking-widest">Question</span>
+              <div class="text-2xl font-bold theme-text-primary"><span id="current-q-num">1</span><span class="text-sm text-gray-500">/5</span></div>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-gray-500 uppercase tracking-widest">Score</span>
+              <div class="text-2xl font-bold theme-text-primary" id="score-display">0</div>
+            </div>
+          </div>
+
+          <!-- Barre de progression -->
+          <div class="w-full h-1 bg-gray-800 mb-8 relative rounded-full overflow-hidden">
+            <div id="progress-bar" class="absolute top-0 left-0 h-full theme-bg-primary transition-all duration-500" style="width: 0%"></div>
+          </div>
+
+          <!-- Conteneur Question -->
+          <div class="min-h-[100px] flex items-center justify-center mb-8">
+            <h3 id="question-text" class="text-xl md:text-2xl font-medium text-white">Chargement...</h3>
+          </div>
+
+          <!-- Options de réponse -->
+          <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <!-- Boutons générés par JS -->
+          </div>
+
+          <!-- Message de feedback -->
+          <div id="feedback-msg" class="h-6 text-sm font-bold tracking-wider opacity-0 transition-opacity duration-300"></div>
+        </div>
+
+        <!-- ÉCRAN DE RÉSULTAT -->
+        <div id="result-screen" class="hidden">
+          <div class="mb-6">
+            <div class="text-6xl mb-4 theme-text-primary animate-bounce">
+              <i class="fas fa-trophy"></i>
+            </div>
+            <h2 class="text-3xl font-bold theme-text-primary mb-1" id="end-title">TERMINE</h2>
+            <p class="theme-text-secondary text-sm uppercase tracking-widest mb-6" id="end-rank">Rang : ???</p>
+          </div>
+
+          <div class="bg-black/40 border border-gray-700 p-6 mb-8 max-w-sm mx-auto rounded-lg">
+            <div class="text-gray-400 text-sm uppercase mb-2">Score Final</div>
+            <div class="text-5xl font-bold text-white mb-2"><span id="final-score">0</span><span class="text-2xl text-gray-600">/5</span></div>
+            <p id="rank-desc" class="text-sm text-gray-400 italic">Description...</p>
+          </div>
+
+          <div class="flex flex-col md:flex-row gap-4 justify-center">
+            <button onclick="restartQuiz()" class="theme-btn px-8 py-3 text-sm font-bold uppercase tracking-wider rounded">Rejouer (Même difficulté)</button>
+            <button
+              onclick="showDifficultyScreen()"
+              class="px-8 py-3 text-sm font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-colors border border-transparent hover:border-gray-600 rounded"
+            >
+              Changer Difficulté
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- DONNÉES DES JEUX ---
+      // Structure: { gameId: { title, theme, ranks, questions: { easy: [], medium: [], hard: [], hardcore: [] } } }
+
+      const gamesData = {
+        lol: {
+          title: "League of Legends",
+          theme: { primary: "#C8AA6E", secondary: "#0AC8B9", bgStart: "#091428", bgEnd: "#010a13", fontTitle: "'Cinzel', serif", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Qui est la sœur de Jinx ?", options: ["Caitlyn", "Vi", "Lux", "Ashe"], correct: 1 },
+              { q: "Quelle est la région de Garen ?", options: ["Noxus", "Demacia", "Ionia", "Freljord"], correct: 1 },
+              { q: "Qui pose des champignons toxiques ?", options: ["Teemo", "Twitch", "Singed", "Cassiopeia"], correct: 0 },
+              { q: "Comment s'appelle l'ours d'Annie ?", options: ["Tibbers", "Volibear", "Daisy", "Gnar"], correct: 0 },
+              { q: "Qui utilise des cartes magiques ?", options: ["Twisted Fate", "Ryze", "Ezreal", "Graves"], correct: 0 },
+              { q: "Quelle est la couleur du mana ?", options: ["Rouge", "Bleu", "Vert", "Jaune"], correct: 1 },
+              { q: "Combien y a-t-il de lanes sur la Faille de l'Invocateur ?", options: ["2", "3", "4", "1"], correct: 1 },
+            ],
+            medium: [
+              { q: "De quelle région Swain est-il le Grand Général ?", options: ["Demacia", "Noxus", "Ionia", "Shurima"], correct: 1 },
+              { q: "Qui a forgé les armes d'Ornn ?", options: ["Ornn lui-même", "Volibear", "Anivia", "Braum"], correct: 0 },
+              { q: "Quel est le véritable nom du Roi Déchu ?", options: ["Mordekaiser", "Viego", "Yorick", "Thresh"], correct: 1 },
+              { q: "Qui est le frère de Yasuo ?", options: ["Yone", "Zed", "Shen", "Kayn"], correct: 0 },
+              { q: "Quel Darkin est un arc ?", options: ["Aatrox", "Rhaast", "Varus", "Naafiri"], correct: 2 },
+              { q: "Qui a fondé l'Académie de Piltover ?", options: ["Heimerdinger", "Jayce", "Viktor", "Camille"], correct: 0 },
+              { q: "Quel est le nom du chat de Yuumi ?", options: ["Book", "Norra", "Yuumi", "Mimi"], correct: 1 },
+            ],
+            hard: [
+              { q: "Quel est le nom du démon à l'intérieur de Swain ?", options: ["Raum", "Evelynn", "Tahm Kench", "Fiddlesticks"], correct: 0 },
+              { q: "De quelle tribu Ashe est-elle la chef ?", options: ["Avarosan", "Griffes Hivernales", "Gardiens du Givre", "Ursine"], correct: 0 },
+              { q: "Qui a créé Blitzcrank ?", options: ["Heimerdinger", "Viktor", "Singed", "Jayce"], correct: 1 },
+              { q: "Quel est le vrai nom de Jhin ?", options: ["Khada Jhin", "Govos", "Usan", "Inconnu"], correct: 0 },
+              { q: "Qui a tué les parents de Vayne ?", options: ["Evelynn", "Fiddlesticks", "Nocturne", "Swain"], correct: 0 },
+              { q: "Comment s'appelle l'épée de Viego ?", options: ["Lame du Roi Déchu", "Sanctity", "Soulreaver", "Zweihander"], correct: 1 },
+              { q: "Quel champion est surnommé 'La Colère de Zaun' ?", options: ["Warwick", "Urgot", "Zac", "Mundo"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "Combien y a-t-il de Darkin connus actuellement ?", options: ["3", "4", "5", "6"], correct: 1 },
+              { q: "Quel est le nom de l'arme de Jayce ?", options: ["Marteau Mercury", "Hextech Gun", "Cannon Spark", "Hammer Time"], correct: 0 },
+              { q: "Dans quelle ville Ryze cache-t-il les Runes ?", options: ["Sous le fort de Demacia", "Dans la forêt de Petricite", "Dans le coffre runique", "Il les garde sur lui"], correct: 1 },
+              { q: "Quel était le nom humain de Kalista ?", options: ["Kalista", "Isolde", "Ledros", "Hecarim"], correct: 0 },
+              { q: "Quel Aspect habite Atreus (Pantheon) ?", options: ["La Guerre", "Le Soleil", "La Lune", "La Protection"], correct: 0 },
+              { q: "Qui est la sœur de Kayle ?", options: ["Morgana", "Leona", "Diana", "Quinn"], correct: 0 },
+              { q: "Quelle est la prime sur la tête de Twisted Fate et Graves ?", options: ["Morte ou vive", "Un empire", "Inestimable", "Double"], correct: 0 },
+            ],
+          },
+        },
+        valorant: {
+          title: "VALORANT",
+          theme: { primary: "#ff4655", secondary: "#ECE8E1", bgStart: "#0f1923", bgEnd: "#000000", fontTitle: "'Oswald', sans-serif", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Combien de rounds pour gagner (non-classé/compétitif) ?", options: ["13", "12", "15", "10"], correct: 0 },
+              { q: "Quel agent soigne ses alliés ?", options: ["Jett", "Sage", "Raze", "Omen"], correct: 1 },
+              { q: "Quel agent vient de Corée du Sud ?", options: ["Jett", "Phoenix", "Yoru", "Sova"], correct: 0 },
+              { q: "Comment s'appelle la bombe ?", options: ["C4", "Spike", "Bomb", "Device"], correct: 1 },
+              { q: "Quel agent utilise un arc ?", options: ["Sova", "Skye", "Breach", "KAY/O"], correct: 0 },
+              { q: "Combien d'agents y a-t-il par équipe ?", options: ["4", "5", "6", "10"], correct: 1 },
+              { q: "Quelle arme est un sniper ?", options: ["Operator", "Vandal", "Judge", "Shorty"], correct: 0 },
+            ],
+            medium: [
+              { q: "Quel est le coût d'une Vandal ?", options: ["2700", "2900", "3100", "2500"], correct: 1 },
+              { q: "Combien de sites possède la carte Haven ?", options: ["2", "3", "4", "1"], correct: 1 },
+              { q: "Quel est le rôle de Reyna ?", options: ["Sentinelle", "Duelliste", "Contrôleur", "Initiateur"], correct: 1 },
+              { q: "Qui a créé Killjoy ?", options: ["Kingdom", "Elle-même", "Raze", "Brimstone"], correct: 1 },
+              { q: "Quelle capacité ultime permet de se téléporter n'importe où ?", options: ["Depuis les ombres", "Voyage interdimensionnel", "Portail", "Saut éclair"], correct: 0 },
+              { q: "Quel agent utilise des tourelles ?", options: ["Killjoy", "Cypher", "Chamber", "Raze"], correct: 0 },
+              { q: "Quelle est la devise de Valorant ?", options: ["Defy the Limits", "To the moon", "Play hard", "Victory"], correct: 0 },
+            ],
+            hard: [
+              { q: "Quel est le vrai nom de Brimstone ?", options: ["Liam Byrne", "James", "Sarge", "Stone"], correct: 0 },
+              { q: "De quel pays vient Chamber ?", options: ["Belgique", "Suisse", "France", "Monaco"], correct: 2 },
+              { q: "Quel est le nom de l'organisation antagoniste ?", options: ["Kingdom", "Omega Earth", "Atlas", "Legion"], correct: 1 },
+              { q: "Quel agent est un radianite naturel (pas de technologie) ?", options: ["Brimstone", "Viper", "Phoenix", "Killjoy"], correct: 2 },
+              { q: "Quel animal représente le gunbuddy de Skye ?", options: ["Loup", "Oiseau", "Faucon", "Tigre"], correct: 2 },
+              { q: "Sur quelle map trouve-t-on des téléporteurs ?", options: ["Bind", "Split", "Haven", "Ascent"], correct: 0 },
+              { q: "Quel agent a perdu son bras ?", options: ["Breach", "Sova", "Brimstone", "Omen"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "Quel est le code pour désamorcer le Spike ?", options: ["7355608", "Alpha-Omega", "Il n'y en a pas", "L'agent tape au hasard"], correct: 2 },
+              { q: "Quelle carte se déroule au Portugal ?", options: ["Pearl", "Breeze", "Ascent", "Split"], correct: 0 },
+              { q: "Quel est le matricule de l'agent Reyna ?", options: ["10", "11", "07", "01"], correct: 1 },
+              { q: "Qui a volé le bras de Breach ?", options: ["Raze", "Personne, né sans", "Accident", "La justice"], correct: 3 },
+              { q: "Quel agent était un tueur à gages ?", options: ["Chamber", "Omen", "Cypher", "Yoru"], correct: 0 },
+              { q: "Combien de dégâts fait un coup de couteau dans le dos (clic droit) ?", options: ["100", "150", "75", "200"], correct: 1 },
+              { q: "Quel est le nom du Kingdom sur la Terre Omega ?", options: ["Kingdom Industries", "Atlas", "Legion", "Omega Corp"], correct: 0 },
+            ],
+          },
+        },
+        gta: {
+          title: "Grand Theft Auto",
+          theme: { primary: "#4caf50", secondary: "#ffffff", bgStart: "#1a1a1a", bgEnd: "#000000", fontTitle: "'Oswald', sans-serif", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Dans quelle ville se passe GTA V ?", options: ["Liberty City", "Vice City", "Los Santos", "San Fierro"], correct: 2 },
+              { q: "Qui est le héros de GTA San Andreas ?", options: ["CJ", "Franklin", "Tommy", "Niko"], correct: 0 },
+              { q: "Quelle couleur pour le gang Grove Street ?", options: ["Vert", "Violet", "Jaune", "Bleu"], correct: 0 },
+              { q: "Qui est le psychopathe de GTA V ?", options: ["Michael", "Franklin", "Trevor", "Lester"], correct: 2 },
+              { q: "Quel véhicule est un tank ?", options: ["Rhino", "Infernus", "Faggio", "Buzzard"], correct: 0 },
+              { q: "Combien de personnages jouables dans GTA V ?", options: ["1", "2", "3", "4"], correct: 2 },
+              { q: "Comment s'appelle l'application sur le téléphone dans GTA V ?", options: ["iFruit", "FruitOS", "Badger", "Eyefind"], correct: 0 },
+            ],
+            medium: [
+              { q: "Qui est le cousin de Niko Bellic ?", options: ["Roman", "Dimitri", "Brucie", "Jacob"], correct: 0 },
+              { q: "Comment s'appelle le chien de Franklin ?", options: ["Chop", "Rex", "Doggo", "Buster"], correct: 0 },
+              { q: "Quelle île a été ajoutée dans GTA Online ?", options: ["Cayo Perico", "North Yankton", "Guarma", "San Fierro"], correct: 0 },
+              { q: "Quel est le nom de famille de Michael ?", options: ["Townley", "De Santa", "Philips", "Clinton"], correct: 1 },
+              { q: "Dans GTA SA, que faut-il suivre ?", options: ["Le train", "La voiture", "L'avion", "Le bateau"], correct: 0 },
+              { q: "Quel est le métier de Lester ?", options: ["Hacker", "Tueur", "Chauffeur", "Banquier"], correct: 0 },
+              { q: "Dans quelle ville se passe GTA IV ?", options: ["Liberty City", "Vice City", "Los Santos", "London"], correct: 0 },
+            ],
+            hard: [
+              { q: "Quel est le nom du culte dans GTA V ?", options: ["Epsilon Program", "Altruistes", "Les enfants de la montagne", "Tous les trois"], correct: 3 },
+              { q: "Qui a trahi CJ dans San Andreas ?", options: ["Big Smoke & Ryder", "Sweet", "Kendl", "Cesar"], correct: 0 },
+              { q: "En quelle année se déroule GTA Vice City ?", options: ["1984", "1986", "1992", "2001"], correct: 1 },
+              { q: "Quel protagoniste est muet ?", options: ["Claude (GTA III)", "Tommy Vercetti", "CJ", "Niko"], correct: 0 },
+              { q: "Quel est le vrai nom de Big Smoke ?", options: ["Melvin Harris", "Lance Wilson", "Carl Johnson", "Sean Sweet"], correct: 0 },
+              { q: "Quelle banque est braquée au début de GTA V ?", options: ["Bobcat", "Fleeca", "Maze Bank", "Pacific Standard"], correct: 0 },
+              { q: "Qui est le mentor de Franklin ?", options: ["Michael", "Lamar", "Trevor", "Simeon"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "Quel est le code pour le Jetpack dans San Andreas (PC) ?", options: ["ROCKETMAN", "HESOYAM", "AEZAKMI", "FULLCLIP"], correct: 0 },
+              { q: "Qui est le père de Tracey et Jimmy ?", options: ["Michael", "Trevor", "Amanda", "Brad"], correct: 0 },
+              { q: "Dans quelle mission Michael détruit une maison ?", options: ["Marriage Counseling", "Father/Son", "Friend Request", "The Big Score"], correct: 0 },
+              { q: "Quel acteur double Trevor Philips ?", options: ["Steven Ogg", "Ned Luke", "Shawn Fonteno", "Ray Liotta"], correct: 0 },
+              { q: "Quelle radio joue 'Lady (Hear Me Tonight)' dans GTA V ?", options: ["Non-Stop Pop FM", "Radio Los Santos", "Space 103.2", "West Coast Classics"], correct: 0 },
+              { q: "Quel est le nom du fantôme sur le Mont Gordo ?", options: ["Jolene Cranley", "Leonora Johnson", "Ursula", "Mary-Ann"], correct: 0 },
+              { q: "En quelle année est sorti le tout premier GTA ?", options: ["1997", "1995", "1999", "2001"], correct: 0 },
+            ],
+          },
+        },
+        minecraft: {
+          title: "Minecraft",
+          theme: { primary: "#8bc34a", secondary: "#795548", bgStart: "#2d2d2d", bgEnd: "#1a1a1a", fontTitle: "'Press Start 2P', cursive", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Quel mob explose ?", options: ["Zombie", "Creeper", "Squelette", "Enderman"], correct: 1 },
+              { q: "Quel outil pour miner de la pierre ?", options: ["Pelle", "Hache", "Pioche", "Houe"], correct: 2 },
+              { q: "Comment s'appelle le monde infernal ?", options: ["Le Nether", "L'End", "L'Aether", "La Cave"], correct: 0 },
+              { q: "Que donnent les moutons ?", options: ["Laine", "Cuir", "Plumes", "Oeufs"], correct: 0 },
+              { q: "Quel minerai est le plus commun ?", options: ["Charbon", "Fer", "Diamant", "Emeraude"], correct: 0 },
+              { q: "De quelle couleur est un Creeper ?", options: ["Vert", "Bleu", "Rouge", "Jaune"], correct: 0 },
+              { q: "Que fait un Enderman si on le regarde ?", options: ["Il attaque", "Il danse", "Il disparait", "Rien"], correct: 0 },
+            ],
+            medium: [
+              { q: "Combien de fer pour un plastron ?", options: ["6", "7", "8", "9"], correct: 2 },
+              { q: "Qui est le boss final ?", options: ["Wither", "Ender Dragon", "Elder Guardian", "Warden"], correct: 1 },
+              { q: "Quel bloc repousse les pistons ?", options: ["Obsidienne", "Pierre", "Bois", "Sable"], correct: 0 },
+              { q: "Comment apprivoiser un chat ?", options: ["Saumon cru", "Os", "Blé", "Graines"], correct: 0 },
+              { q: "Que faut-il pour faire un portail du Nether ?", options: ["10 Obsidiennes", "8 Obsidiennes", "12 Obsidiennes", "14 Obsidiennes minimum"], correct: 0 },
+              { q: "Quelle créature défend les temples sous-marins ?", options: ["Gardien", "Noyé", "Dauphin", "Poulpe"], correct: 0 },
+              { q: "Quel objet sert à voler ?", options: ["Elytra", "Cape", "Plume", "Potion"], correct: 0 },
+            ],
+            hard: [
+              { q: "Quel est le nom du créateur de Minecraft ?", options: ["Notch", "Jeb", "Dinnerbone", "C418"], correct: 0 },
+              { q: "Quelle créature donne une Membrane de Fantôme ?", options: ["Phantom", "Ghast", "Vex", "Chauve-souris"], correct: 0 },
+              { q: "Combien de bibliothèques pour l'enchantement max (niv 30) ?", options: ["12", "15", "16", "20"], correct: 1 },
+              { q: "Quelle est la hauteur maximale de construction (v1.18+) ?", options: ["256", "320", "512", "128"], correct: 1 },
+              { q: "Quel enchantement permet de marcher sur l'eau ?", options: ["Semelles givrantes", "Agilité aquatique", "Chute amortie", "Apnée"], correct: 0 },
+              { q: "Quel est le bloc le plus résistant (cassable) ?", options: ["Obsidienne", "Bedrock", "Netherite", "Ancient Debris"], correct: 0 },
+              { q: "Comment obtenir une pomme de Notch (Enchantée) ?", options: ["Dans les coffres", "Crafting", "Sur les arbres", "Villageois"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "Combien de ticks y a-t-il dans une seconde réelle ?", options: ["10", "20", "30", "60"], correct: 1 },
+              { q: "Quel est l'ID numérique de la pierre (avant 1.13) ?", options: ["1", "2", "3", "4"], correct: 0 },
+              { q: "Quelle est la probabilité d'un mouton rose naturel ?", options: ["0.164%", "1%", "5%", "0.01%"], correct: 0 },
+              { q: "Qui est 'Herobrine' ?", options: ["Un mythe", "Le frère de Notch", "Un boss caché", "Un virus"], correct: 0 },
+              { q: "Comment obtenir une tête de Creeper en survie ?", options: ["Creeper chargé le tue", "Butin rare", "Commerce", "Impossible"], correct: 0 },
+              { q: "Quelle version a ajouté l'Update Aquatic ?", options: ["1.13", "1.12", "1.14", "1.11"], correct: 0 },
+              { q: "Combien d'yeux de l'End maximum peuvent être déjà placés sur le portail ?", options: ["12", "0", "5", "Tous"], correct: 0 },
+            ],
+          },
+        },
+        tekken: {
+          title: "TEKKEN",
+          theme: { primary: "#FF3333", secondary: "#FFD700", bgStart: "#2a0a0a", bgEnd: "#000000", fontTitle: "'Oswald', sans-serif", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Qui est le personnage principal (souvent) ?", options: ["Kazuya", "Jin", "Heihachi", "Tous les trois"], correct: 3 },
+              { q: "Quel animal est un combattant ?", options: ["Panda", "Chien", "Chat", "Cheval"], correct: 0 },
+              { q: "Quel est le nom du tournoi ?", options: ["King of Iron Fist", "Mortal Kombat", "World Warrior", "Kumite"], correct: 0 },
+              { q: "Quel personnage fait de la Capoeira ?", options: ["Eddy Gordo", "Hwoarang", "Law", "Paul"], correct: 0 },
+              { q: "Qui a une coiffure très haute ?", options: ["Paul Phoenix", "Jin", "Kazuya", "Lee"], correct: 0 },
+              { q: "Quel personnage est un robot ?", options: ["Jack", "Jin", "King", "Law"], correct: 0 },
+              { q: "Quel est le nom de l'ours ?", options: ["Kuma", "Panda", "Roger", "Alex"], correct: 0 },
+            ],
+            medium: [
+              { q: "Qui est le père de Kazuya ?", options: ["Heihachi", "Jinpachi", "Jin", "Lars"], correct: 0 },
+              { q: "Qui est le rival de Paul Phoenix ?", options: ["Kuma", "Law", "Steve", "Bryan"], correct: 0 },
+              { q: "Quel robot imite les coups ?", options: ["Combot/Mokujin", "Jack", "Alisa", "Bryan"], correct: 0 },
+              { q: "Qui porte un masque de Jaguar ?", options: ["King", "Marduk", "Armor King", "Les deux King"], correct: 3 },
+              { q: "D'où vient Lili ?", options: ["Monaco", "France", "Japon", "USA"], correct: 0 },
+              { q: "Quel personnage utilise une épée ?", options: ["Yoshimitsu", "Law", "Paul", "Hwoarang"], correct: 0 },
+              { q: "Qui est le père de Jin ?", options: ["Kazuya", "Heihachi", "Lars", "Lee"], correct: 0 },
+            ],
+            hard: [
+              { q: "Qui est la mère de Jin ?", options: ["Jun Kazama", "Asuka Kazama", "Kazumi Mishima", "Michelle Chang"], correct: 0 },
+              { q: "Quel est le style de combat de Hwoarang ?", options: ["Taekwondo", "Karaté", "Judo", "Muay Thai"], correct: 0 },
+              { q: "Qui est le père de Lars Alexandersson ?", options: ["Heihachi", "Kazuya", "Jinpachi", "Lee"], correct: 0 },
+              { q: "Dans Tekken 3, qui est le boss final ?", options: ["Ogre", "Heihachi", "Devil Jin", "Azazel"], correct: 0 },
+              { q: "Qui est la femme de Heihachi ?", options: ["Kazumi", "Jun", "Michelle", "Anna"], correct: 0 },
+              { q: "Quel personnage est un boxeur ?", options: ["Steve Fox", "Paul", "Law", "Lei"], correct: 0 },
+              { q: "Qui est la soeur d'Anna Williams ?", options: ["Nina", "Julia", "Lili", "Asuka"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "Quel personnage n'apparaît que dans Tekken 4 ?", options: ["Miharu", "Christie", "Combot", "Personne"], correct: 3 },
+              { q: "En quelle année est sorti le premier Tekken (Arcade) ?", options: ["1994", "1995", "1993", "1996"], correct: 0 },
+              { q: "Quel est le nom de l'organisation de Kazuya ?", options: ["G Corporation", "Mishima Zaibatsu", "Violet Systems", "Manji Clan"], correct: 0 },
+              { q: "Comment s'appelle l'épée de Yoshimitsu ?", options: ["Yoshimitsu", "Masamune", "Muramasa", "Kusanagi"], correct: 0 },
+              { q: "Quel personnage a été remplacé par Raven dans Tekken 5 ?", options: ["Kunimitsu", "Personne", "Master Raven", "Bruce"], correct: 1 },
+              { q: "Qui a entraîné Jin Kazama ?", options: ["Heihachi", "Kazuya", "Paul", "Wang"], correct: 0 },
+              { q: "Quel est le démon de Jinpachi ?", options: ["Il n'a pas de nom", "Ogre", "Azazel", "Devil"], correct: 0 },
+            ],
+          },
+        },
+        ac: {
+          title: "Assassin's Creed",
+          theme: { primary: "#d4af37", secondary: "#A60000", bgStart: "#1a1a1a", bgEnd: "#000000", fontTitle: "'Cinzel', serif", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Quelle est l'arme emblématique des Assassins ?", options: ["Lame secrète", "Épée", "Arc", "Hache"], correct: 0 },
+              { q: "Quel héros vit en Italie ?", options: ["Ezio", "Altaïr", "Connor", "Edward"], correct: 0 },
+              { q: "Comment s'appelle le saut dans le foin ?", options: ["Saut de la foi", "Saut de l'ange", "Plongeon", "Chute libre"], correct: 0 },
+              { q: "Qui sont les ennemis des Assassins ?", options: ["Les Templiers", "Les Romains", "Les Pirates", "Les Vikings"], correct: 0 },
+              { q: "Quel est le décor de AC Valhalla ?", options: ["Vikings", "Égypte", "Grèce", "Révolution Française"], correct: 0 },
+              { q: "Dans quel pays se passe AC Origins ?", options: ["Égypte", "Grèce", "Italie", "France"], correct: 0 },
+              { q: "Qui est le héros de AC Odyssey ?", options: ["Kassandra/Alexios", "Bayek", "Eivor", "Arno"], correct: 0 },
+            ],
+            medium: [
+              { q: "Comment s'appelle la machine pour revivre les mémoires ?", options: ["Animus", "Matrix", "Helix", "Abstergo"], correct: 0 },
+              { q: "Qui est le protagoniste du premier jeu ?", options: ["Altaïr", "Ezio", "Desmond", "Bayek"], correct: 0 },
+              { q: "Dans quelle ville se passe AC Unity ?", options: ["Paris", "Londres", "Rome", "Venise"], correct: 0 },
+              { q: "Quel pirate est le héros de Black Flag ?", options: ["Edward Kenway", "Barbe Noire", "Jack Sparrow", "Haytham"], correct: 0 },
+              { q: "Quelle civilisation ancienne a créé les Fragments d'Éden ?", options: ["Isu", "Atlantes", "Aliens", "Dieux"], correct: 0 },
+              { q: "Qui est le père de Connor ?", options: ["Haytham Kenway", "Edward Kenway", "Charles Lee", "Achilles"], correct: 0 },
+              { q: "Quel est le métier de Desmond Miles ?", options: ["Barman", "Assassin", "Voleur", "Archéologue"], correct: 0 },
+            ],
+            hard: [
+              { q: "Qui est le descendant de Desmond Miles ?", options: ["Elijah", "William", "Clay", "Il n'en a pas"], correct: 0 },
+              { q: "Quel est le vrai nom de Barbe Noire dans le jeu ?", options: ["Thatch", "Teach", "Vane", "Hornigold"], correct: 0 },
+              { q: "Comment s'appelle la sœur d'Evie Frye ?", options: ["Jacob", "Henry", "Lydia", "Elle n'a pas de sœur"], correct: 3 },
+              { q: "Quel Assassin est Russe ?", options: ["Nikolai Orelov", "Arbaaz Mir", "Shao Jun", "Yusuf"], correct: 0 },
+              { q: "Qui a tué Altaïr ?", options: ["Personne (vieillesse)", "Abbas", "Al Mualim", "Gengis Khan"], correct: 0 },
+              { q: "Quel est le nom de l'aigle de Bayek ?", options: ["Senu", "Ikaros", "Synin", "Eagle"], correct: 0 },
+              { q: "Qui a fondé l'Ordre des Templiers ?", options: ["Caïn", "Alfred le Grand", "Hugues de Payns", "Rodrigo Borgia"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "Quel est le nom complet d'Ezio ?", options: ["Ezio Auditore da Firenze", "Ezio Auditore", "Ezio da Firenze", "Ezio Mario Auditore"], correct: 0 },
+              { q: "Quel jeu introduit le Hookblade ?", options: ["Revelations", "Brotherhood", "AC III", "Unity"], correct: 0 },
+              { q: "Qui est le Sage dans Black Flag ?", options: ["Bartholomew Roberts", "Woodes Rogers", "Torres", "Hornigold"], correct: 0 },
+              { q: "Quelle année marque la fin du monde dans AC 3 ?", options: ["2012", "2000", "2020", "2010"], correct: 0 },
+              { q: "Quel est le nom du fils d'Altaïr ?", options: ["Darim", "Sef", "Les deux", "Malik"], correct: 2 },
+              { q: "Qui est le Sujet 16 ?", options: ["Clay Kaczmarek", "Desmond Miles", "Warren Vidic", "Daniel Cross"], correct: 0 },
+              { q: "Dans quelle ville meurt Ezio ?", options: ["Florence", "Venise", "Rome", "Masyaf"], correct: 0 },
+            ],
+          },
+        },
+        mario: {
+          title: "Super Mario",
+          theme: { primary: "#FF0000", secondary: "#FFD700", bgStart: "#009ACD", bgEnd: "#00008B", fontTitle: "'Press Start 2P', cursive", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Qui est le frère de Mario ?", options: ["Luigi", "Wario", "Yoshi", "Toad"], correct: 0 },
+              { q: "Qui Mario doit-il sauver ?", options: ["Princesse Peach", "Princesse Daisy", "Pauline", "Rosalina"], correct: 0 },
+              { q: "Quel est le méchant principal ?", options: ["Bowser", "Kamek", "Donkey Kong", "Roi Boo"], correct: 0 },
+              { q: "Que mange Yoshi ?", options: ["Tout (ou presque)", "Champignons", "Étoiles", "Fleurs"], correct: 0 },
+              { q: "Quelle couleur est la casquette de Mario ?", options: ["Rouge", "Verte", "Jaune", "Bleue"], correct: 0 },
+              { q: "Quel objet permet de lancer des boules de feu ?", options: ["Fleur de feu", "Champignon", "Étoile", "Plume"], correct: 0 },
+              { q: "Qui est le rival de Mario ?", options: ["Wario", "Waluigi", "Luigi", "Toad"], correct: 0 },
+            ],
+            medium: [
+              { q: "Quel objet fait grandir Mario ?", options: ["Super Champignon", "Fleur de feu", "Étoile", "Feuille"], correct: 0 },
+              { q: "Quel est le nom du dinosaure vert ?", options: ["Yoshi", "Birdo", "Rex", "Koopa"], correct: 0 },
+              { q: "Dans quel jeu Mario va-t-il dans l'espace ?", options: ["Super Mario Galaxy", "Sunshine", "Odyssey", "64"], correct: 0 },
+              { q: "Qui est le partenaire de Wario ?", options: ["Waluigi", "Bowser", "Kamek", "Donkey Kong"], correct: 0 },
+              { q: "Sur quelle console est sorti Super Mario 64 ?", options: ["Nintendo 64", "GameCube", "SNES", "Wii"], correct: 0 },
+              { q: "Quel est le nom du frère de Bowser ?", options: ["Il n'en a pas", "Morton", "Ludwig", "Kamek"], correct: 0 },
+              { q: "Quelle princesse règne sur Sarasaland ?", options: ["Daisy", "Peach", "Rosalina", "Pauline"], correct: 0 },
+            ],
+            hard: [
+              { q: "Quel était le premier nom de Mario ?", options: ["Jumpman", "Mr. Video", "Ossan", "Plumber"], correct: 0 },
+              { q: "Quel est le métier de Mario (officiellement) ?", options: ["Plombier", "Charpentier", "Médecin", "Pilote"], correct: 0 },
+              { q: "Comment s'appelle la machine à eau dans Sunshine ?", options: ["J.E.T.", "F.L.U.D.D.", "A.Q.U.A.", "S.P.L.A.S.H."], correct: 1 },
+              { q: "Qui est la mère de Bowser Jr. ?", options: ["Inconnu", "Peach", "Daisy", "Wendy"], correct: 0 },
+              { q: "Quel jeu a introduit Rosalina (Harmonie) ?", options: ["Galaxy", "Galaxy 2", "3D World", "Mario Kart Wii"], correct: 0 },
+              { q: "Quel est le nom du vaisseau dans Mario Odyssey ?", options: ["L'Odyssée", "L'Orion", "Le Mario", "Le Chapeau"], correct: 0 },
+              { q: "Combien y a-t-il de Koopalings ?", options: ["7", "8", "6", "9"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "Dans quel jeu Mario est-il le méchant ?", options: ["Donkey Kong Jr.", "Donkey Kong", "Mario Bros.", "Wrecking Crew"], correct: 0 },
+              { q: "Quel est le nom complet de Yoshi ?", options: ["T. Yoshisaur Munchakoopas", "Yoshida", "Yoshi Dino", "Juste Yoshi"], correct: 0 },
+              { q: "Combien d'étoiles y a-t-il dans Super Mario 64 ?", options: ["120", "121", "150", "100"], correct: 0 },
+              { q: "Qui a composé le thème original de Mario ?", options: ["Koji Kondo", "Nobuo Uematsu", "Shigeru Miyamoto", "Kazumi Totaka"], correct: 0 },
+              { q: "Quel Koopaling a une crête multicolore ?", options: ["Lemmy", "Iggy", "Ludwig", "Larry"], correct: 0 },
+              { q: "Quelle est la date de sortie de Super Mario Bros. au Japon ?", options: ["13 septembre 1985", "13 septembre 1983", "10 mars 1985", "1 janvier 1986"], correct: 0 },
+              { q: "Quel personnage est jouable dans Super Mario Bros 2 mais pas le 1 ?", options: ["Peach", "Yoshi", "Wario", "Donkey Kong"], correct: 0 },
+            ],
+          },
+        },
+        ratchet: {
+          title: "Ratchet: Gladiator",
+          theme: { primary: "#F27200", secondary: "#004080", bgStart: "#101020", bgEnd: "#000000", fontTitle: "'Oswald', sans-serif", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Qui est le meilleur ami de Ratchet ?", options: ["Clank", "Qwark", "Al", "Talwyn"], correct: 0 },
+              { q: "Quelle est l'arme de corps à corps de Ratchet ?", options: ["Clé (Omniwrench)", "Marteau", "Sabre", "Poing"], correct: 0 },
+              { q: "Dans Gladiator, que font Ratchet et Clank ?", options: ["Combattent dans une arène", "Sauvent l'univers", "Cherchent un trésor", "Rarent les Lombax"], correct: 0 },
+              { q: "De quelle couleur est Ratchet ?", options: ["Jaune/Orange", "Bleu", "Vert", "Gris"], correct: 0 },
+              { q: "Qui présente l'émission DreadZone ?", options: ["Gleeman Vox", "Juanita & Dallas", "Qwark", "Nefarious"], correct: 1 },
+              { q: "Comment s'appelle le petit robot ?", options: ["Clank", "Click", "Clunk", "Clock"], correct: 0 },
+              { q: "Quel est le but des défis ?", options: ["Survivre", "Dormir", "Manger", "Voler"], correct: 0 },
+            ],
+            medium: [
+              { q: "Quel est le nom du méchant principal de Gladiator ?", options: ["Gleeman Vox", "Dr. Nefarious", "Drek", "Emperor Tachyon"], correct: 0 },
+              { q: "Comment s'appellent les robots de combat de Ratchet ?", options: ["Bots de combat", "Mercenaires", "Galactic Rangers", "Zoni"], correct: 0 },
+              { q: "Quelle est l'espèce de Ratchet ?", options: ["Lombax", "Blarg", "Cragmite", "Humain"], correct: 0 },
+              { q: "Quelle arme tire des scorpions/lave ?", options: ["Le Scorpion", "Le Magma", "Le Fléau", "Le Harbringer"], correct: 2 },
+              { q: "Dans quelle station se déroule le jeu ?", options: ["DreadZone", "Station Q9", "Veldin", "Metropolis"], correct: 0 },
+              { q: "Quel est le grade de Ratchet ?", options: ["Gladiateur", "Soldat", "Capitaine", "Général"], correct: 0 },
+              { q: "Que portent les héros autour du cou ?", options: ["Un collier explosif", "Une médaille", "Une écharpe", "Rien"], correct: 0 },
+            ],
+            hard: [
+              { q: "Quel est le nom de l'équipe de Ratchet ?", options: ["Team DarkStar", "Team Hero", "Team Lombax", "Team Qwark"], correct: 0 },
+              { q: "Quel ancien héros est devenu un Exterminator ?", options: ["Ace Hardlight", "Shellshock", "Reactor", "Eviscerator"], correct: 0 },
+              { q: "Quel est le niveau maximum des armes (Omega) ?", options: ["99", "10", "5", "50"], correct: 0 },
+              { q: "Comment s'appelle le collier explosif ?", options: ["Deadlock", "DeathCollar", "DoomDevice", "ExploNeck"], correct: 0 },
+              { q: "Qui est le premier boss Exterminator ?", options: ["Shellshock", "Reactor", "Eviscerator", "Ace"], correct: 0 },
+              { q: "Quelle planète est la planète natale de Ratchet ?", options: ["Fastoon", "Veldin", "Kerwan", "Novalis"], correct: 0 },
+              { q: "Qui est le chef des Exterminators ?", options: ["Ace Hardlight", "Vox", "Reactor", "Slugga"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "Quel est le nom original US du jeu ?", options: ["Deadlocked", "Gladiator", "Arena", "Warzone"], correct: 0 },
+              { q: "Quel cheat code est débloqué avec tous les points de compétence ?", options: ["Mode Ninja", "Invincibilité", "Munitions illimitées", "Météo"], correct: 0 },
+              { q: "Combien y a-t-il de points de compétence ?", options: ["165", "100", "50", "150"], correct: 0 },
+              { q: "Quel est le nom du vaisseau de Vox ?", options: ["Dreadnought", "Vox Populi", "Battledome", "Vox's Pride"], correct: 2 },
+              { q: "Quel personnage de Jak & Daxter apparaît comme skin ?", options: ["Jak", "Daxter", "Pecker", "Samos"], correct: 0 },
+              { q: "Quel est le nom du mode coopératif ?", options: ["Il n'y en a pas", "Co-op", "Squad Mode", "Duo"], correct: 1 },
+              { q: "Quel studio a développé ce jeu ?", options: ["Insomniac Games", "Naughty Dog", "Sucker Punch", "Guerrilla"], correct: 0 },
+            ],
+          },
+        },
+        zelda: {
+          title: "The Legend of Zelda",
+          theme: { primary: "#FFD700", secondary: "#2E8B57", bgStart: "#006400", bgEnd: "#000000", fontTitle: "'Cinzel', serif", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Comment s'appelle le héros ?", options: ["Link", "Zelda", "Ganon", "Tingle"], correct: 0 },
+              { q: "Qui est la princesse ?", options: ["Zelda", "Peach", "Midna", "Impa"], correct: 0 },
+              { q: "Quel est le méchant principal ?", options: ["Ganon/Ganondorf", "Vaati", "Zant", "Majora"], correct: 0 },
+              { q: "Quelle est l'arme emblématique de Link ?", options: ["L'Épée de Légende (Master Sword)", "Hache", "Lance", "Bâton"], correct: 0 },
+              { q: "Quelle forme a la Triforce ?", options: ["Triangles", "Cercles", "Carrés", "Étoiles"], correct: 0 },
+              { q: "Quelle est la monnaie du jeu ?", options: ["Rubis", "Pièces", "Gils", "Anneaux"], correct: 0 },
+              { q: "Quelle couleur porte Link habituellement ?", options: ["Vert", "Rouge", "Bleu", "Jaune"], correct: 0 },
+            ],
+            medium: [
+              { q: "Dans quel jeu Link se transforme-t-il en loup ?", options: ["Twilight Princess", "Ocarina of Time", "Majora's Mask", "Skyward Sword"], correct: 0 },
+              { q: "Quel instrument joue Link dans Ocarina of Time ?", options: ["Ocarina", "Flûte", "Guitare", "Piano"], correct: 0 },
+              { q: "Quel peuple vit dans l'eau ?", options: ["Zoras", "Gorons", "Piafs", "Gerudos"], correct: 0 },
+              { q: "Qui est Sheik ?", options: ["Zelda", "Impa", "Link", "Ganon"], correct: 0 },
+              { q: "Quel jeu a introduit le style 'Cartoon' ?", options: ["The Wind Waker", "A Link to the Past", "Twilight Princess", "Breath of the Wild"], correct: 0 },
+              { q: "Quel est le nom du cheval de Link ?", options: ["Epona", "Agro", "Ablette", "Spirit"], correct: 0 },
+              { q: "Où vit Ganon ?", options: ["Château de Ganon", "Temple du Temps", "Village Cocorico", "Forêt Kokiri"], correct: 0 },
+            ],
+            hard: [
+              { q: "Quel est le nom de l'épée dans Skyward Sword ?", options: ["Épée de la Déesse", "Master Sword", "Épée Kokiri", "Épée Biggoron"], correct: 0 },
+              { q: "Qui est Fay (Fi) ?", options: ["L'esprit de l'épée", "La sœur de Link", "Une fée", "La reine"], correct: 0 },
+              { q: "Combien de masques y a-t-il dans Majora's Mask ?", options: ["24", "20", "30", "12"], correct: 0 },
+              { q: "Quel est le nom du roi d'Hyrule dans Wind Waker ?", options: ["Daphnès Nohansen Hyrule", "Rhoam Bosphoramus", "Zeltus", "Hylia"], correct: 0 },
+              { q: "Quelle est la chronologie où Link perd ?", options: ["Déclin du Héros", "Héros du Temps", "Héros du Vent", "Il ne perd jamais"], correct: 0 },
+              { q: "Quel objet permet de voir la vérité ?", options: ["Monocle de Vérité", "Loupe", "Lanterne", "Masque"], correct: 0 },
+              { q: "Qui a créé la Triforce ?", options: ["Din, Nayru et Farore", "Hylia", "Zelda", "Ganon"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "Quel est le tout premier jeu Zelda dans la chronologie ?", options: ["Skyward Sword", "Minish Cap", "Ocarina of Time", "The Legend of Zelda"], correct: 0 },
+              { q: "Quel est le nom de la langue parlée par Midna ?", options: ["Anglais inversé/déformé", "Hylien", "Japonais", "Gallic"], correct: 0 },
+              { q: "Dans Zelda II, quelle est la particularité du gameplay ?", options: ["Vue de côté", "FPS", "Tour par tour", "RTS"], correct: 0 },
+              { q: "Quel est le nom du hibou qui parle beaucoup ?", options: ["Kaepora Gaebora", "Navi", "Tatl", "Ezlo"], correct: 0 },
+              { q: "Quelle est la capacité maximale de rubis dans le premier Zelda ?", options: ["255", "999", "100", "500"], correct: 0 },
+              { q: "Qui est le boss du Temple de l'Eau dans Ocarina of Time ?", options: ["Morpha", "Bongo Bongo", "Volvagia", "Gohma"], correct: 0 },
+              { q: "Quel jeu Zelda n'a pas été fait par Nintendo ?", options: ["The Wand of Gamelon", "Link's Awakening", "Oracle of Ages", "Spirit Tracks"], correct: 0 },
+            ],
+          },
+        },
+        pokemon: {
+          title: "Pokémon",
+          theme: { primary: "#FFCB05", secondary: "#3B4CCA", bgStart: "#CC0000", bgEnd: "#8B0000", fontTitle: "'Luckiest Guy', cursive", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Quel est le Pokémon mascotte ?", options: ["Pikachu", "Dracaufeu", "Mewtwo", "Évoli"], correct: 0 },
+              { q: "Quel type est efficace contre le Feu ?", options: ["Eau", "Plante", "Glace", "Insecte"], correct: 0 },
+              { q: "Quel objet capture les Pokémon ?", options: ["Pokéball", "Filet", "Cage", "Sac"], correct: 0 },
+              { q: "Combien d'évolutions a Évoli (actuellement) ?", options: ["8", "3", "5", "10"], correct: 0 },
+              { q: "Qui est le dresseur principal de l'animé ?", options: ["Sacha", "Régis", "Pierre", "Ondine"], correct: 0 },
+              { q: "Quelle est la couleur de Dracaufeu ?", options: ["Orange", "Rouge", "Noir", "Vert"], correct: 0 },
+              { q: "Que dit Pikachu ?", options: ["Pika Pika", "Bonjour", "Feu", "Rien"], correct: 0 },
+            ],
+            medium: [
+              { q: "À quel niveau Magicarpe évolue-t-il ?", options: ["20", "15", "10", "25"], correct: 0 },
+              { q: "Quel est le type de Mewtwo ?", options: ["Psy", "Ténèbres", "Spectre", "Combat"], correct: 0 },
+              { q: "Combien y avait-il de Pokémon dans la 1ère génération ?", options: ["151", "150", "100", "251"], correct: 0 },
+              { q: "Quel badge donne Pierre ?", options: ["Badge Roche", "Badge Cascade", "Badge Foudre", "Badge Âme"], correct: 0 },
+              { q: "Quel Pokémon dort tout le temps ?", options: ["Ronflex", "Psykokwak", "Miaouss", "Rondoudou"], correct: 0 },
+              { q: "Quelle est l'évolution finale de Bulbizarre ?", options: ["Florizarre", "Tortank", "Dracaufeu", "Herbizarre"], correct: 0 },
+              { q: "Quelle équipe méchante est dans Kanto ?", options: ["Team Rocket", "Team Magma", "Team Plasma", "Team Galaxy"], correct: 0 },
+            ],
+            hard: [
+              { q: "Quel est le Pokémon numéro 1 du Pokédex National ?", options: ["Bulbizarre", "Mew", "Arceus", "Rhinocorne"], correct: 0 },
+              { q: "Quel objet double les EV gagnés ?", options: ["Bracelet Macho", "Multi Exp", "Oeuf Chance", "Grelot Zen"], correct: 0 },
+              { q: "Quel Pokémon n'a pas de faiblesse (avant Gén 6) ?", options: ["Ténéfix/Spiritomb", "Mewtwo", "Ronflex", "Dracolosse"], correct: 0 },
+              { q: "Quel type a été introduit en Gén 2 ?", options: ["Acier et Ténèbres", "Fée", "Dragon", "Glace"], correct: 0 },
+              { q: "Comment évolue Spectrum ?", options: ["Échange", "Pierre Lune", "Niveau 36", "Bonheur"], correct: 0 },
+              { q: "Quel est le talent caché de Grenousse ?", options: ["Protéen", "Torrent", "Crachin", "Intimidation"], correct: 0 },
+              { q: "Qui a créé Mewtwo ?", options: ["La Team Rocket", "Le Professeur Chen", "La Team Plasma", "Arceus"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "Quel est le glitch célèbre de la 1ère génération ?", options: ["MissingNo.", "Bad Egg", "Void Glitch", "Clonage"], correct: 0 },
+              { q: "Quelle est la statistique de base Vitesse de Ninjask ?", options: ["160", "150", "140", "130"], correct: 0 },
+              { q: "Quel Pokémon peut apprendre le plus d'attaques ?", options: ["Mew", "Arceus", "Queulorior", "Métamorph"], correct: 0 },
+              { q: "Quel objet augmente la durée de la pluie ?", options: ["Roche Humide", "Roche Chaude", "Roche Glace", "Roche Lisse"], correct: 0 },
+              { q: "Combien de formes a Zarbi ?", options: ["28", "26", "24", "30"], correct: 0 },
+              { q: "Quelle est la chance de base d'un Shiny (Gén 6+) ?", options: ["1/4096", "1/8192", "1/1000", "1/2048"], correct: 0 },
+              { q: "Quel Pokémon a la statistique d'Attaque la plus basse ?", options: ["Leveinard/Ptiravi", "Magicarpe", "Barpau", "Chenipan"], correct: 0 },
+            ],
+          },
+        },
+        fortnite: {
+          title: "Fortnite",
+          theme: { primary: "#9d4dbb", secondary: "#2fb5f6", bgStart: "#2a0a3b", bgEnd: "#000000", fontTitle: "'Luckiest Guy', cursive", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Comment s'appelle le bus volant ?", options: ["Bus de combat", "Magic Bus", "Fly Bus", "School Bus"], correct: 0 },
+              { q: "Quel outil sert à récolter des matériaux ?", options: ["Pioche", "Hache", "Pelle", "Marteau"], correct: 0 },
+              { q: "Quel est le but du jeu ?", options: ["Être le dernier survivant", "Tuer le plus de monde", "Construire une maison", "Trouver un trésor"], correct: 0 },
+              { q: "Quel matériau est le plus solide ?", options: ["Métal", "Pierre", "Bois", "Diamant"], correct: 0 },
+              { q: "Quelle est la rareté 'Légendaire' ?", options: ["Or/Jaune", "Violet", "Bleu", "Vert"], correct: 0 },
+              { q: "Que construit-on ?", options: ["Murs/Escaliers", "Voitures", "Armes", "Pièges"], correct: 0 },
+              { q: "Comment s'appelle la tempête ?", options: ["La Tempête", "Le Gaz", "Le Nuage", "La Zone"], correct: 0 },
+            ],
+            medium: [
+              { q: "Quelle ville célèbre a été détruite par un météore ?", options: ["Tilted Towers", "Pleasant Park", "Retail Row", "Greasy Grove"], correct: 0 },
+              { q: "Combien de PV donne une mini potion ?", options: ["25", "50", "10", "100"], correct: 0 },
+              { q: "Quel skin est le plus 'tryhard' (cliché) ?", options: ["Aura/Siren", "Banane", "Jonesy", "Poiscaille"], correct: 0 },
+              { q: "Quelle saison a introduit le Chapitre 2 ?", options: ["Saison 11", "Saison 10", "Saison 1", "Saison 9"], correct: 0 },
+              { q: "Quel véhicule est une boule ?", options: ["La Bulle Mobile", "Le Quad", "L'Avion", "Le Caddie"], correct: 0 },
+              { q: "Qui est le personnage principal de l'histoire (souvent) ?", options: ["Jonesy", "Midas", "Le Visiteur", "Slone"], correct: 0 },
+              { q: "Quel est le niveau maximum du Passe de Combat (pour tout débloquer base) ?", options: ["100", "200", "50", "150"], correct: 0 },
+            ],
+            hard: [
+              { q: "Quel est le nom de l'organisation secrète ?", options: ["L'Institut Onirique (IO)", "Les Sept", "Ghost", "Shadow"], correct: 0 },
+              { q: "Qui est le chef des Sept ?", options: ["La Fondation", "Le Visiteur", "Le Scientifique", "L'Origine"], correct: 0 },
+              { q: "Quel événement a aspiré toute la map ?", options: ["The End (Black Hole)", "The Device", "Galactus", "Travis Scott"], correct: 0 },
+              { q: "Quelle arme a été retirée car trop puissante (Saison 7) ?", options: ["Lame de l'Infini", "Zapotron", "SCAR", "Pompe Chasseur"], correct: 0 },
+              { q: "Quel jour la boutique change-t-elle ?", options: ["Tous les jours", "Chaque semaine", "Le mardi", "Le vendredi"], correct: 0 },
+              { q: "Combien de dégâts fait un piège à pointes ?", options: ["150", "100", "75", "200"], correct: 0 },
+              { q: "Quel skin était le palier 100 de la saison 2 ?", options: ["Chevalier Noir", "Midas", "John Wick", "Omega"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "Quelle est la date de sortie du Battle Royale ?", options: ["Septembre 2017", "Juillet 2017", "Janvier 2018", "Septembre 2016"], correct: 0 },
+              { q: "Combien de PV avait le météore (glitch) ?", options: ["5000", "1000", "Indestructible", "10000"], correct: 0 },
+              { q: "Quel artiste a fait le premier concert virtuel ?", options: ["Marshmello", "Travis Scott", "Ariana Grande", "Eminem"], correct: 0 },
+              { q: "Quel est le nom du cube violet ?", options: ["Kevin", "Steve", "Bob", "Darko"], correct: 0 },
+              { q: "Quelle arme mythique appartenait à Midas ?", options: ["Drum Gun", "SCAR", "Grappler", "Minigun"], correct: 0 },
+              { q: "Quel était le premier véhicule ajouté ?", options: ["Caddie", "Voiture", "Avion", "Quad"], correct: 0 },
+              { q: "Quel pro a gagné la World Cup Solo 2019 ?", options: ["Bugha", "Ninja", "Tfue", "Mongraal"], correct: 0 },
+            ],
+          },
+        },
+        gow: {
+          title: "God of War",
+          theme: { primary: "#b33939", secondary: "#2C3A47", bgStart: "#2d3436", bgEnd: "#000000", fontTitle: "'Cinzel', serif", fontMain: "'Roboto', sans-serif" },
+          questions: {
+            easy: [
+              { q: "Qui est le personnage principal ?", options: ["Kratos", "Zeus", "Atreus", "Odin"], correct: 0 },
+              { q: "Comment s'appelle le fils de Kratos ?", options: ["Atreus", "Boy", "Loki", "Thor"], correct: 0 },
+              { q: "Quelle est l'arme emblématique nordique de Kratos ?", options: ["Hache Leviathan", "Lames du Chaos", "Marteau Mjolnir", "Lance Draupnir"], correct: 0 },
+              { q: "Quel dieu Kratos a-t-il servi en Grèce ?", options: ["Ares", "Zeus", "Hades", "Poseidon"], correct: 0 },
+              { q: "Comment Kratos appelle-t-il souvent son fils ?", options: ["Boy", "Son", "Atreus", "Kid"], correct: 0 },
+              { q: "Qui est la tête coupée qui accompagne Kratos ?", options: ["Mimir", "Baldur", "Brok", "Tyr"], correct: 0 },
+              { q: "De quelle mythologie vient Kratos à l'origine ?", options: ["Grecque", "Nordique", "Égyptienne", "Romaine"], correct: 0 },
+            ],
+            medium: [
+              { q: "Qui est la femme de Kratos dans les jeux nordiques ?", options: ["Faye", "Freya", "Sif", "Lysandra"], correct: 0 },
+              { q: "Quel est le vrai nom d'Atreus (donné par les Géants) ?", options: ["Loki", "Fenrir", "Jormungandr", "Tyr"], correct: 0 },
+              { q: "Qui sont les forgerons de la Hache Leviathan ?", options: ["Brok et Sindri", "Les Nains", "Hephaestus", "Ivaldi"], correct: 0 },
+              { q: "Quel est le nom du grand serpent ?", options: ["Jormungandr", "Nidhogg", "Fafnir", "Orochi"], correct: 0 },
+              { q: "Qui est l'antagoniste principal de GoW (2018) ?", options: ["Baldur", "Thor", "Odin", "Zeus"], correct: 0 },
+              { q: "Quelle arme Kratos récupère-t-il pour aller en Helheim ?", options: ["Lames du Chaos", "Hache Leviathan", "Épée de l'Olympe", "Gants de Ceste"], correct: 0 },
+              { q: "Qui a tué la famille de Kratos (par manipulation) ?", options: ["Kratos lui-même", "Ares", "Zeus", "Athena"], correct: 0 },
+            ],
+            hard: [
+              { q: "Quel est le nom de la mère de Kratos (Grèce) ?", options: ["Callisto", "Gaia", "Lysandra", "Rhea"], correct: 0 },
+              { q: "Qui est la Reine des Valkyries dans GoW (2018) ?", options: ["Sigrun", "Gunnr", "Rota", "Freya"], correct: 0 },
+              { q: "Comment s'appelle l'écureuil sur l'arbre monde ?", options: ["Ratatoskr", "Nidhogg", "Hraezlyr", "Fafnir"], correct: 0 },
+              { q: "Quel frère de Kratos apparaît dans Ghost of Sparta ?", options: ["Deimos", "Hercules", "Atreus", "Perseus"], correct: 0 },
+              { q: "Quelle magie Mimir utilise-t-il (ses yeux) ?", options: ["Bifröst", "Lumière d'Alfheim", "Magie Vanir", "Runes"], correct: 0 },
+              { q: "Qui a arraché les ailes des Valkyries ?", options: ["Odin", "Thor", "Freya", "Mimir"], correct: 0 },
+              { q: "Dans quel royaume le temps passe-t-il plus vite ?", options: ["Jotunheim", "Alfheim", "Helheim", "Asgard"], correct: 0 },
+            ],
+            hardcore: [
+              { q: "En quelle année est sorti le tout premier God of War ?", options: ["2005", "2003", "2007", "2001"], correct: 0 },
+              { q: "Quel est le nom du capitaine que Kratos laisse tomber dans l'hydre ?", options: ["Le Capitaine du bateau", "Jason", "Argos", "Alrik"], correct: 0 },
+              { q: "Quelle est la toute première arme divine que Kratos reçoit ?", options: ["Lames du Chaos", "Lame d'Artemis", "Colère de Poseidon", "Éclair de Zeus"], correct: 0 },
+              { q: "Qui a doublé Kratos (VO) dans les jeux grecs ?", options: ["Terrence C. Carson", "Christopher Judge", "Nolan North", "Troy Baker"], correct: 0 },
+              { q: "Comment s'appelait la fille de Kratos (morte) ?", options: ["Calliope", "Pandora", "Lysandra", "Athena"], correct: 0 },
+              { q: "Quel titan Kratos libère-t-il dans GoW 2 ?", options: ["Prométhée", "Atlas", "Cronos", "Typhon"], correct: 0 },
+              { q: "Quel est le nom du chien à trois têtes (cerbère) que Kratos tue pour l'Or du Rhin ?", options: ["Il n'a pas de nom spécifique", "Cerbère", "Orthros", "Garm"], correct: 0 },
+            ],
+          },
+        },
+      };
+
+      // --- ÉTAT GLOBAL ---
+      let currentGameId = null;
+      let currentDifficulty = "medium";
+      let currentQuestions = [];
+      let currentQuestionIndex = 0;
+      let score = 0;
+      let isAnswering = false;
+
+      // --- DOM ---
+      const root = document.documentElement;
+      const selectScreen = document.getElementById("select-screen");
+      const difficultyScreen = document.getElementById("difficulty-screen");
+      const quizScreen = document.getElementById("quiz-screen");
+      const resultScreen = document.getElementById("result-screen");
+
+      const diffGameTitle = document.getElementById("diff-game-title");
+      const gameTitle = document.getElementById("game-title");
+      const questionText = document.getElementById("question-text");
+      const optionsContainer = document.getElementById("options-container");
+      const currentQNum = document.getElementById("current-q-num");
+      const scoreDisplay = document.getElementById("score-display");
+      const progressBar = document.getElementById("progress-bar");
+      const feedbackMsg = document.getElementById("feedback-msg");
+      const currentDifficultyBadge = document.getElementById("current-difficulty-badge");
+
+      // --- LOGIQUE ---
+
+      function initGame(gameId) {
+        currentGameId = gameId;
+        const game = gamesData[gameId];
+
+        // Appliquer le thème
+        applyTheme(game.theme);
+
+        // Aller à l'écran de difficulté
+        diffGameTitle.innerText = game.title.toUpperCase();
+
+        selectScreen.classList.add("hidden");
+        resultScreen.classList.add("hidden");
+        quizScreen.classList.add("hidden");
+        difficultyScreen.classList.remove("hidden");
+        difficultyScreen.classList.add("fade-in");
+      }
+
+      function showDifficultyScreen() {
+        quizScreen.classList.add("hidden");
+        resultScreen.classList.add("hidden");
+        difficultyScreen.classList.remove("hidden");
+        difficultyScreen.classList.add("fade-in");
+      }
+
+      function selectDifficulty(level) {
+        currentDifficulty = level;
+        const game = gamesData[currentGameId];
+
+        // Préparer les questions selon la difficulté
+        currentQuestions = [...game.questions[level]];
+
+        // UI Badge Difficulté
+        const labels = { easy: "FACILE", medium: "MOYEN", hard: "DIFFICILE", hardcore: "HARDCORE" };
+        const colors = { easy: "text-green-400", medium: "text-yellow-400", hard: "text-red-400", hardcore: "text-purple-400" };
+        currentDifficultyBadge.innerText = labels[level];
+        currentDifficultyBadge.className = `px-2 py-1 rounded text-xs font-bold bg-gray-800 border border-gray-600 ${colors[level]}`;
+
+        gameTitle.innerText = game.title;
+        score = 0;
+        currentQuestionIndex = 0;
+        updateScoreUI();
+
+        // Naviguer
+        difficultyScreen.classList.add("hidden");
+        quizScreen.classList.remove("hidden");
+        quizScreen.classList.add("fade-in");
+
+        loadQuestion();
+      }
+
+      function applyTheme(theme) {
+        root.style.setProperty("--primary-color", theme.primary);
+        root.style.setProperty("--secondary-color", theme.secondary);
+        root.style.setProperty("--bg-start", theme.bgStart);
+        root.style.setProperty("--bg-end", theme.bgEnd);
+        root.style.setProperty("--font-title", theme.fontTitle);
+        root.style.setProperty("--font-main", theme.fontMain);
+      }
+
+      function loadQuestion() {
+        isAnswering = true;
+        const q = currentQuestions[currentQuestionIndex];
+
+        currentQNum.innerText = currentQuestionIndex + 1;
+        // Met à jour le total de questions affiché (dynamique selon la banque de questions)
+        currentQNum.nextElementSibling.innerText = `/${currentQuestions.length}`;
+
+        questionText.innerText = q.q;
+        progressBar.style.width = `${(currentQuestionIndex / currentQuestions.length) * 100}%`;
+        feedbackMsg.style.opacity = "0";
+
+        optionsContainer.innerHTML = "";
+
+        // MELANGE DES OPTIONS
+        // On crée un tableau d'objets pour garder la trace de l'index original
+        let shuffledOptions = q.options.map((opt, i) => ({ text: opt, originalIndex: i }));
+
+        // Algorithme de mélange (Fisher-Yates)
+        for (let i = shuffledOptions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+        }
+
+        shuffledOptions.forEach((optObj, index) => {
+          const btn = document.createElement("button");
+          btn.className = "theme-btn p-4 text-left rounded w-full font-medium flex items-center";
+          // L'index visuel (A, B, C...) suit la boucle
+          btn.innerHTML = `<span class="inline-block w-6 h-6 border border-current rounded-full text-center text-xs leading-[20px] mr-3 opacity-70">${String.fromCharCode(65 + index)}</span>${
+            optObj.text
+          }`;
+
+          // IMPORTANT : On stocke l'index original dans un attribut data
+          btn.dataset.originalIndex = optObj.originalIndex;
+
+          // On passe l'index original à la fonction de vérification
+          btn.onclick = () => checkAnswer(optObj.originalIndex, btn);
+          optionsContainer.appendChild(btn);
+        });
+      }
+
+      function checkAnswer(selectedIndex, btnElement) {
+        if (!isAnswering) return;
+        isAnswering = false;
+
+        const q = currentQuestions[currentQuestionIndex];
+        const buttons = optionsContainer.children;
+
+        for (let btn of buttons) {
+          btn.classList.add("disabled-btn");
+        }
+
+        if (selectedIndex === q.correct) {
+          btnElement.classList.add("correct-answer");
+          score++;
+          updateScoreUI();
+          feedbackMsg.innerHTML = '<span style="color:#00ff00"><i class="fas fa-check"></i> Bonne réponse !</span>';
+        } else {
+          btnElement.classList.add("wrong-answer");
+
+          // Trouver le bon bouton (celui dont le data-original-index correspond à la bonne réponse)
+          for (let btn of buttons) {
+            if (parseInt(btn.dataset.originalIndex) === q.correct) {
+              btn.classList.add("correct-answer");
+              break;
+            }
+          }
+
+          feedbackMsg.innerHTML = '<span style="color:#ff0000"><i class="fas fa-times"></i> Raté !</span>';
+        }
+
+        feedbackMsg.style.opacity = "1";
+
+        setTimeout(() => {
+          nextQuestion();
+        }, 1200);
+      }
+
+      function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < currentQuestions.length) {
+          loadQuestion();
+        } else {
+          showResults();
+        }
+      }
+
+      function updateScoreUI() {
+        scoreDisplay.innerText = score;
+      }
+
+      function showResults() {
+        quizScreen.classList.add("hidden");
+        resultScreen.classList.remove("hidden");
+        resultScreen.classList.add("fade-in");
+
+        document.getElementById("final-score").innerText = score;
+        // Met à jour le dénominateur du score final
+        document.getElementById("final-score").nextElementSibling.innerText = `/${currentQuestions.length}`;
+
+        const game = gamesData[currentGameId];
+        const endRank = document.getElementById("end-rank");
+        const endTitle = document.getElementById("end-title");
+        const rankDesc = document.getElementById("rank-desc");
+
+        // Calcul du pourcentage de réussite
+        const percentage = (score / currentQuestions.length) * 10;
+
+        let rankTitle = "Débutant";
+        let rankDescText = "Continuez à vous entraîner !";
+
+        if (percentage === 10) {
+          rankTitle = "LÉGENDE";
+          rankDescText = "Un score parfait. Incroyable.";
+        } else if (percentage >= 8) {
+          rankTitle = "Maître";
+          rankDescText = "Excellent travail.";
+        } else if (percentage >= 5) {
+          rankTitle = "Initié";
+          rankDescText = "Pas mal, mais peut mieux faire.";
+        }
+
+        endTitle.innerText = rankTitle.toUpperCase();
+        endRank.innerText = `Difficulté : ${currentDifficulty.toUpperCase()}`;
+        rankDesc.innerText = rankDescText;
+      }
+
+      function restartQuiz() {
+        selectDifficulty(currentDifficulty);
+      }
+
+      function goHome() {
+        selectScreen.classList.remove("hidden");
+        difficultyScreen.classList.add("hidden");
+        quizScreen.classList.add("hidden");
+        resultScreen.classList.add("hidden");
+      }
+    </script>
+  </body>
+</html>
