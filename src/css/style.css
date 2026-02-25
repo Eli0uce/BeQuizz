@@ -1,0 +1,187 @@
+:root {
+  --primary-color: #c8aa6e;
+  --secondary-color: #0ac8b9;
+  --bg-start: #091428;
+  --bg-end: #010a13;
+  --text-main: #f0e6d2;
+  --border-color: #3c3c41;
+  --font-main: "Roboto", sans-serif;
+  --font-title: "Cinzel", serif;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-end);
+  background-image: radial-gradient(circle at center, var(--bg-start) 0%, var(--bg-end) 100%);
+  color: var(--text-main);
+  overflow-x: hidden;
+  transition: background 0.5s ease;
+  min-height: 100vh;
+}
+
+h1, h2, h3, .title-font {
+  font-family: var(--font-title);
+}
+
+.theme-text-primary { color: var(--primary-color); }
+.theme-text-secondary { color: var(--secondary-color); }
+.theme-border { border-color: var(--primary-color); }
+.theme-bg-primary { background-color: var(--primary-color); }
+
+.theme-btn {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  font-family: var(--font-title);
+}
+
+.theme-btn:hover {
+  background: var(--primary-color);
+  color: #000;
+  box-shadow: 0 0 20px var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.theme-btn.disabled-btn {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.game-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+}
+
+.game-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: var(--hover-color, #fff);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.lock-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.game-card.locked:hover .lock-overlay {
+  opacity: 1;
+}
+
+.game-card.locked {
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+}
+
+.xp-bar-container {
+  background: rgba(255, 255, 255, 0.1);
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), #fff);
+  width: 0%;
+  transition: width 1s ease-in-out;
+  box-shadow: 0 0 10px var(--primary-color);
+}
+
+#xp-notification {
+  position: fixed;
+  bottom: -150px;
+  right: 2rem;
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid var(--primary-color);
+  padding: 1.5rem 2.5rem;
+  border-radius: 1rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#xp-notification.show {
+  bottom: 2rem;
+}
+
+.badge-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.badge-card.locked {
+  filter: grayscale(1) blur(1px);
+  opacity: 0.5;
+}
+
+.correct-answer {
+  background: rgba(0, 255, 0, 0.2) !important;
+  border-color: #00ff00 !important;
+  color: #00ff00 !important;
+}
+
+.wrong-answer {
+  background: rgba(255, 0, 0, 0.2) !important;
+  border-color: #ff0000 !important;
+  color: #ff0000 !important;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGold {
+  0%, 100% { text-shadow: 0 0 10px #ffd700; transform: scale(1); }
+  50% { text-shadow: 0 0 25px #ffd700; transform: scale(1.1); }
+}
+
+.level-up-banner {
+  color: #ffd700;
+  font-weight: bold;
+  text-transform: uppercase;
+  animation: pulseGold 1.5s infinite;
+}
+
+/* Auth Tabs */
+.auth-tab {
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+  color: #666;
+  font-weight: bold;
+}
+
+.auth-tab.active {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}

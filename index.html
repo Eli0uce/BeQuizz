@@ -137,99 +137,394 @@
         filter: brightness(1.2);
         transform: scale(1.05);
       }
+
+      /* SYSTÈME DE PROGRESSION */
+      .xp-bar-container {
+        background: rgba(255, 255, 255, 0.1);
+        height: 12px;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .xp-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), #fff);
+        width: 0%;
+        transition: width 1s ease-in-out;
+        box-shadow: 0 0 10px var(--primary-color);
+      }
+
+      .lock-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+      }
+
+      .game-card.locked:hover .lock-overlay {
+        opacity: 1;
+      }
+
+      .game-card.locked {
+        cursor: not-allowed;
+        filter: grayscale(0.8);
+      }
+
+      .badge-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .badge-card.locked {
+        filter: grayscale(1) blur(1px);
+        opacity: 0.5;
+      }
+
+      .badge-card i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      /* XP NOTIFICATION */
+      #xp-notification {
+        position: fixed;
+        bottom: -100px;
+        right: 2rem;
+        background: rgba(0, 0, 0, 0.9);
+        border: 2px solid var(--primary-color);
+        padding: 1rem 2rem;
+        border-radius: 1rem;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      #xp-notification.show {
+        bottom: 2rem;
+      }
+
+      .level-up-banner {
+        color: #ffd700;
+        font-weight: bold;
+        text-transform: uppercase;
+        animation: pulseGold 1.5s infinite;
+      }
+
+      @keyframes pulseGold {
+        0%, 100% { text-shadow: 0 0 10px #ffd700; transform: scale(1); }
+        50% { text-shadow: 0 0 25px #ffd700; transform: scale(1.1); }
+      }
+
+      /* Auth Tabs */
+      .auth-tab {
+        padding: 0.75rem 1.5rem;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.3s;
+        color: #666;
+      }
+
+      .auth-tab.active {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+      }
+
+      .profile-btn {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.5);
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 50;
+        transition: all 0.3s;
+      }
+
+      .profile-btn:hover {
+        background: var(--primary-color);
+        color: #000;
+        box-shadow: 0 0 15px var(--primary-color);
+      }
     </style>
   </head>
   <body class="min-h-screen flex items-center justify-center p-4">
     <!-- Container Principal -->
     <div id="main-container" class="w-full max-w-7xl bg-black/80 backdrop-blur-md border border-gray-700 p-1 decorative-frame shadow-2xl relative fade-in rounded-xl">
+      <!-- Bouton Profil (persistant) -->
+      <div id="top-profile-btn" onclick="showProfile()" class="profile-btn hidden">
+        <i class="fas fa-user"></i>
+      </div>
+
       <div class="p-6 md:p-10 text-center relative z-10">
+        <!-- ÉCRAN AUTHENTIFICATION -->
+        <div id="auth-screen">
+          <div class="max-w-md mx-auto">
+            <h1 class="text-4xl font-bold mb-8 theme-text-primary" style="font-family: 'Oswald', sans-serif">BIENVENUE</h1>
+            
+            <div class="flex mb-6 border-b border-gray-800">
+              <div id="tab-login" onclick="switchAuthTab('login')" class="auth-tab active flex-1 font-bold">CONNEXION</div>
+              <div id="tab-signup" onclick="switchAuthTab('signup')" class="auth-tab flex-1 font-bold">INSCRIPTION</div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="space-y-4">
+              <input type="text" id="login-username" placeholder="Nom d'utilisateur" class="w-full bg-black/50 border border-gray-700 p-3 rounded focus:border-primary-color outline-none text-white">
+              <input type="password" id="login-password" placeholder="Mot de passe" class="w-full bg-black/50 border border-gray-700 p-3 rounded focus:border-primary-color outline-none text-white">
+              <button onclick="handleLogin()" class="theme-btn w-full py-3 rounded font-bold mt-4">SE CONNECTER</button>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signup-form" class="space-y-4 hidden">
+              <input type="text" id="signup-username" placeholder="Choisir un pseudo" class="w-full bg-black/50 border border-gray-700 p-3 rounded focus:border-primary-color outline-none text-white">
+              <input type="password" id="signup-password" placeholder="Choisir un mot de passe" class="w-full bg-black/50 border border-gray-700 p-3 rounded focus:border-primary-color outline-none text-white">
+              <button onclick="handleSignup()" class="theme-btn w-full py-3 rounded font-bold mt-4">CRÉER UN COMPTE</button>
+            </div>
+            
+            <p id="auth-error" class="text-red-500 mt-4 text-sm hidden"></p>
+          </div>
+        </div>
+
+        <!-- ÉCRAN PROFIL -->
+        <div id="profile-screen" class="hidden">
+          <button onclick="goHome()" class="absolute top-0 left-0 text-gray-500 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i> Retour</button>
+          
+          <div class="flex flex-col md:flex-row gap-8 items-start">
+            <!-- Sidebar Profil -->
+            <div class="w-full md:w-1/3 bg-black/40 p-6 rounded-lg border border-gray-800">
+              <div id="profile-avatar" class="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl border-4 border-primary-color bg-gray-900">
+                <i class="fas fa-user"></i>
+              </div>
+              <h2 id="profile-username" class="text-2xl font-bold theme-text-primary mb-1">Username</h2>
+              <div id="profile-level-badge" class="inline-block px-3 py-1 bg-primary-color text-black font-bold rounded-full text-sm mb-4">Lv. 1</div>
+              
+              <!-- Barre XP -->
+              <div class="text-left mb-2 flex justify-between text-xs">
+                <span>Progression XP</span>
+                <span id="profile-xp-text">0 / 100 XP</span>
+              </div>
+              <div class="xp-bar-container mb-6">
+                <div id="profile-xp-fill" class="xp-bar-fill"></div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 mb-6">
+                <div class="bg-black/40 p-3 rounded border border-gray-800">
+                  <div class="text-xs text-gray-500 uppercase">Quizz joués</div>
+                  <div id="stats-quizzes" class="text-xl font-bold">0</div>
+                </div>
+                <div class="bg-black/40 p-3 rounded border border-gray-800">
+                  <div class="text-xs text-gray-500 uppercase">Jeux débloqués</div>
+                  <div id="stats-games" class="text-xl font-bold">3/12</div>
+                </div>
+              </div>
+
+              <button onclick="showLeaderboard()" class="w-full py-2 mb-2 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors"><i class="fas fa-trophy mr-2 theme-text-primary"></i> Voir le classement</button>
+              <button onclick="resetProgress()" class="w-full py-2 mb-2 bg-yellow-900/20 hover:bg-yellow-900/40 text-yellow-500 rounded text-sm transition-colors"><i class="fas fa-redo mr-2"></i> Réinitialiser ma progression</button>
+              <button onclick="deleteAccount()" class="w-full py-2 mb-2 bg-red-900/20 hover:bg-red-900/40 text-red-500 rounded text-sm transition-colors"><i class="fas fa-trash mr-2"></i> Supprimer mon compte</button>
+              <button onclick="logout()" class="w-full py-2 bg-gray-900/50 hover:bg-gray-800 rounded text-sm transition-colors"><i class="fas fa-sign-out-alt mr-2 text-red-500"></i> Déconnexion</button>
+            </div>
+
+            <!-- Contenu Profil -->
+            <div class="w-full md:w-2/3 space-y-8">
+              <!-- Badges -->
+              <div class="text-left">
+                <h3 class="text-xl font-bold mb-4 flex items-center"><i class="fas fa-medal mr-2 theme-text-primary"></i> Badges & Succès</h3>
+                <div id="badges-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                  <!-- Badges injectés ici -->
+                </div>
+              </div>
+
+              <!-- Meilleurs Scores -->
+              <div class="text-left">
+                <h3 class="text-xl font-bold mb-4 flex items-center"><i class="fas fa-star mr-2 theme-text-primary"></i> Meilleurs Records</h3>
+                <div id="best-scores-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <!-- Scores injectés ici -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ÉCRAN CLASSEMENT -->
+        <div id="leaderboard-screen" class="hidden">
+          <button onclick="showProfile()" class="absolute top-0 left-0 text-gray-500 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i> Retour</button>
+          
+          <h2 class="text-3xl font-bold mb-8 theme-text-primary" style="font-family: 'Oswald', sans-serif">CLASSEMENT MONDIAL</h2>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-gray-800 text-gray-500 text-sm uppercase">
+                  <th class="py-4 px-4">Rang</th>
+                  <th class="py-4 px-4">Utilisateur</th>
+                  <th class="py-4 px-4 text-center">Niveau</th>
+                  <th class="py-4 px-4 text-right">XP Totale</th>
+                  <th class="py-4 px-4 text-right">Quizz</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body">
+                <!-- Lignes injectées ici -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- ÉCRAN SÉLECTION DU JEU -->
-        <div id="select-screen">
+        <div id="select-screen" class="hidden">
           <div class="mb-10">
             <h1 class="text-4xl md:text-5xl font-bold text-white mb-2" style="font-family: 'Oswald', sans-serif">GAMING QUIZ HUB</h1>
             <p class="text-gray-400">Choisissez votre univers</p>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mx-auto">
-            <!-- Carte LoL -->
-            <div onclick="initGame('lol')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #c8aa6e">
-              <div class="absolute inset-0 bg-gradient-to-br from-blue-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <i class="fas fa-fist-raised text-4xl mb-4 text-[#C8AA6E]"></i>
-              <h3 class="text-lg font-bold text-[#C8AA6E] mb-2 font-serif">League of Legends</h3>
-            </div>
-
-            <!-- Carte Valorant -->
-            <div onclick="initGame('valorant')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ff4655">
-              <div class="absolute inset-0 bg-gradient-to-br from-red-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <i class="fas fa-crosshairs text-4xl mb-4 text-[#ff4655]"></i>
-              <h3 class="text-lg font-bold text-[#ff4655] mb-2" style="font-family: 'Oswald', sans-serif">VALORANT</h3>
-            </div>
-
-            <!-- Carte GTA -->
-            <div onclick="initGame('gta')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #4caf50">
-              <div class="absolute inset-0 bg-gradient-to-br from-green-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <i class="fas fa-car text-4xl mb-4 text-[#4caf50]"></i>
-              <h3 class="text-lg font-bold text-[#4caf50] mb-2" style="font-family: 'Oswald', sans-serif">Grand Theft Auto</h3>
-            </div>
-
             <!-- Carte Minecraft -->
-            <div onclick="initGame('minecraft')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #8bc34a">
+            <div id="game-minecraft" onclick="initGame('minecraft')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #8bc34a">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">1</span> requis</span>
+              </div>
               <div class="absolute inset-0 bg-gradient-to-br from-green-800/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <i class="fas fa-cube text-4xl mb-4 text-[#8bc34a]"></i>
               <h3 class="text-lg font-bold text-[#8bc34a] mb-2" style="font-family: 'Press Start 2P', cursive; font-size: 0.7rem; line-height: 1.5rem">Minecraft</h3>
             </div>
 
-            <!-- Carte Tekken -->
-            <div onclick="initGame('tekken')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ff3333">
-              <div class="absolute inset-0 bg-gradient-to-br from-red-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <i class="fas fa-fire text-4xl mb-4 text-[#FF3333]"></i>
-              <h3 class="text-lg font-bold text-[#FF3333] mb-2" style="font-family: 'Oswald', sans-serif">TEKKEN</h3>
-            </div>
-
-            <!-- Carte Assassin's Creed -->
-            <div onclick="initGame('ac')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #a60000">
-              <div class="absolute inset-0 bg-gradient-to-br from-gray-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <i class="fas fa-user-secret text-4xl mb-4 text-[#A60000]"></i>
-              <h3 class="text-lg font-bold text-[#d4af37] mb-2" style="font-family: 'Cinzel', serif">Assassin's Creed</h3>
-            </div>
-
             <!-- Carte Mario -->
-            <div onclick="initGame('mario')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ff0000">
+            <div id="game-mario" onclick="initGame('mario')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ff0000">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">1</span> requis</span>
+              </div>
               <div class="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <i class="fas fa-gamepad text-4xl mb-4 text-[#FF0000]"></i>
               <h3 class="text-lg font-bold text-[#FF0000] mb-2" style="font-family: 'Press Start 2P', cursive; font-size: 0.7rem; line-height: 1.5rem">Super Mario</h3>
             </div>
 
-            <!-- Carte Ratchet -->
-            <div onclick="initGame('ratchet')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #f27200">
-              <div class="absolute inset-0 bg-gradient-to-br from-blue-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <i class="fas fa-robot text-4xl mb-4 text-[#F27200]"></i>
-              <h3 class="text-lg font-bold text-[#F27200] mb-2" style="font-family: 'Oswald', sans-serif">Ratchet: Gladiator</h3>
-            </div>
-
-            <!-- Carte Zelda -->
-            <div onclick="initGame('zelda')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ffd700">
-              <div class="absolute inset-0 bg-gradient-to-br from-green-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <i class="fas fa-triforce text-4xl mb-4 text-[#ffd700]"></i>
-              <h3 class="text-lg font-bold text-[#ffd700] mb-2" style="font-family: 'Cinzel', serif">The Legend of Zelda</h3>
-            </div>
-
             <!-- Carte Pokémon -->
-            <div onclick="initGame('pokemon')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ffcb05">
+            <div id="game-pokemon" onclick="initGame('pokemon')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ffcb05">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">1</span> requis</span>
+              </div>
               <div class="absolute inset-0 bg-gradient-to-br from-red-600/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <i class="fas fa-bolt text-4xl mb-4 text-[#ffcb05]"></i>
               <h3 class="text-lg font-bold text-[#ffcb05] mb-2" style="font-family: 'Luckiest Guy', cursive">Pokémon</h3>
             </div>
 
             <!-- Carte Fortnite -->
-            <div onclick="initGame('fortnite')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #9d4dbb">
+            <div id="game-fortnite" onclick="initGame('fortnite')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #9d4dbb">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">2</span> requis</span>
+              </div>
               <div class="absolute inset-0 bg-gradient-to-br from-blue-600/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <i class="fas fa-hammer text-4xl mb-4 text-[#9d4dbb]"></i>
               <h3 class="text-lg font-bold text-[#9d4dbb] mb-2" style="font-family: 'Luckiest Guy', cursive">Fortnite</h3>
             </div>
 
+            <!-- Carte GTA -->
+            <div id="game-gta" onclick="initGame('gta')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #4caf50">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">3</span> requis</span>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-br from-green-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-car text-4xl mb-4 text-[#4caf50]"></i>
+              <h3 class="text-lg font-bold text-[#4caf50] mb-2" style="font-family: 'Oswald', sans-serif">Grand Theft Auto</h3>
+            </div>
+
+            <!-- Carte Valorant -->
+            <div id="game-valorant" onclick="initGame('valorant')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ff4655">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">4</span> requis</span>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-br from-red-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-crosshairs text-4xl mb-4 text-[#ff4655]"></i>
+              <h3 class="text-lg font-bold text-[#ff4655] mb-2" style="font-family: 'Oswald', sans-serif">VALORANT</h3>
+            </div>
+
+            <!-- Carte League of Legends -->
+            <div id="game-lol" onclick="initGame('lol')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #c8aa6e">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">5</span> requis</span>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-br from-blue-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-fist-raised text-4xl mb-4 text-[#C8AA6E]"></i>
+              <h3 class="text-lg font-bold text-[#C8AA6E] mb-2 font-serif">League of Legends</h3>
+            </div>
+
+            <!-- Carte Zelda -->
+            <div id="game-zelda" onclick="initGame('zelda')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ffd700">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">6</span> requis</span>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-br from-green-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-triforce text-4xl mb-4 text-[#ffd700]"></i>
+              <h3 class="text-lg font-bold text-[#ffd700] mb-2" style="font-family: 'Cinzel', serif">The Legend of Zelda</h3>
+            </div>
+
+            <!-- Carte Assassin's Creed -->
+            <div id="game-ac" onclick="initGame('ac')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #a60000">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">7</span> requis</span>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-br from-gray-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-user-secret text-4xl mb-4 text-[#A60000]"></i>
+              <h3 class="text-lg font-bold text-[#d4af37] mb-2" style="font-family: 'Cinzel', serif">Assassin's Creed</h3>
+            </div>
+
+            <!-- Carte Tekken -->
+            <div id="game-tekken" onclick="initGame('tekken')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #ff3333">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">9</span> requis</span>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-br from-red-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-fire text-4xl mb-4 text-[#FF3333]"></i>
+              <h3 class="text-lg font-bold text-[#FF3333] mb-2" style="font-family: 'Oswald', sans-serif">TEKKEN</h3>
+            </div>
+
+            <!-- Carte Ratchet -->
+            <div id="game-ratchet" onclick="initGame('ratchet')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #f27200">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">11</span> requis</span>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-br from-blue-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <i class="fas fa-robot text-4xl mb-4 text-[#F27200]"></i>
+              <h3 class="text-lg font-bold text-[#F27200] mb-2" style="font-family: 'Oswald', sans-serif">Ratchet: Gladiator</h3>
+            </div>
+
             <!-- Carte God of War -->
-            <div onclick="initGame('gow')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #d32f2f">
+            <div id="game-gow" onclick="initGame('gow')" class="game-card p-6 rounded-lg group relative" style="--hover-color: #d32f2f">
+              <div class="lock-overlay">
+                <i class="fas fa-lock text-3xl mb-2"></i>
+                <span class="text-xs font-bold uppercase">Niveau <span class="req-lvl">13</span> requis</span>
+              </div>
               <div class="absolute inset-0 bg-gradient-to-br from-red-800/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <i class="fas fa-skull text-4xl mb-4 text-[#d32f2f]"></i>
               <h3 class="text-lg font-bold text-[#d32f2f] mb-2" style="font-family: 'Cinzel', serif">God of War</h3>
@@ -247,21 +542,21 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            <button onclick="selectDifficulty('easy')" class="difficulty-card p-6 rounded-lg border border-green-500 bg-green-900/20 text-green-400 transition-all">
+            <button id="diff-easy" onclick="selectDifficulty('easy')" class="difficulty-card relative p-6 rounded-lg border border-green-500 bg-green-900/20 text-green-400 transition-all">
               <div class="text-2xl font-bold mb-1">FACILE</div>
               <div class="text-xs opacity-70">Pour les débutants</div>
             </button>
-            <button onclick="selectDifficulty('medium')" class="difficulty-card p-6 rounded-lg border border-yellow-500 bg-yellow-900/20 text-yellow-400 transition-all">
+            <button id="diff-medium" onclick="selectDifficulty('medium')" class="difficulty-card relative p-6 rounded-lg border border-yellow-500 bg-yellow-900/20 text-yellow-400 transition-all">
               <div class="text-2xl font-bold mb-1">MOYEN</div>
-              <div class="text-xs opacity-70">Le défi standard</div>
+              <div class="text-xs opacity-70">Niveau 3 requis</div>
             </button>
-            <button onclick="selectDifficulty('hard')" class="difficulty-card p-6 rounded-lg border border-red-500 bg-red-900/20 text-red-400 transition-all">
+            <button id="diff-hard" onclick="selectDifficulty('hard')" class="difficulty-card relative p-6 rounded-lg border border-red-500 bg-red-900/20 text-red-400 transition-all">
               <div class="text-2xl font-bold mb-1">DIFFICILE</div>
-              <div class="text-xs opacity-70">Pour les experts</div>
+              <div class="text-xs opacity-70">Niveau 7 requis</div>
             </button>
-            <button onclick="selectDifficulty('hardcore')" class="difficulty-card p-6 rounded-lg border border-purple-500 bg-purple-900/20 text-purple-400 transition-all">
+            <button id="diff-hardcore" onclick="selectDifficulty('hardcore')" class="difficulty-card relative p-6 rounded-lg border border-purple-500 bg-purple-900/20 text-purple-400 transition-all">
               <div class="text-2xl font-bold mb-1"><i class="fas fa-skull"></i> HARDCORE</div>
-              <div class="text-xs opacity-70">Connaissances obscures requises</div>
+              <div class="text-xs opacity-70">Niveau 12 requis</div>
             </button>
           </div>
         </div>
@@ -337,7 +632,193 @@
       </div>
     </div>
 
+    <!-- XP Notification (Floating) -->
+    <div id="xp-notification">
+      <div id="xp-amount" class="text-3xl font-black theme-text-primary">+0 XP</div>
+      <div id="xp-reason" class="text-xs text-gray-400 mb-2">Quiz terminé</div>
+      <div id="xp-levelup" class="hidden">
+        <div class="level-up-banner text-lg">LEVEL UP ! 🎉</div>
+        <div id="xp-newlevel" class="text-sm font-bold text-white">Niveau 2</div>
+      </div>
+      <div id="xp-unlocked" class="text-xs text-green-500 font-bold mt-1 hidden">
+        <i class="fas fa-lock-open mr-1"></i> Nouveau jeu débloqué !
+      </div>
+    </div>
+
     <script>
+      // --- SYSTÈME DE PROGRESSION & AUTH ---
+      const XP_LEVELS = [0, 100, 250, 450, 700, 1000, 1300, 1550, 1800, 2500, 3500, 5000, 7000, 9500, 12500];
+      const GAME_UNLOCKS = {
+        minecraft: 1, mario: 1, pokemon: 1,
+        fortnite: 2, gta: 3, valorant: 4, lol: 5,
+        zelda: 6, ac: 7, tekken: 9, ratchet: 11, gow: 13
+      };
+      const DIFF_UNLOCKS = { easy: 1, medium: 3, hard: 7, hardcore: 12 };
+      const XP_PER_ANSWER = { easy: 10, medium: 20, hard: 35, hardcore: 60 };
+      const XP_BONUS_COMPLETION = { easy: 20, medium: 40, hard: 80, hardcore: 150 };
+
+      const BADGES = [
+        { id: 'first_quiz', name: 'Premier Quiz', icon: 'fa-gamepad', desc: 'Compléter 1 quiz' },
+        { id: 'perfect_score', name: 'Score Parfait', icon: 'fa-star', desc: '100% à n' + "'" + 'importe quel quiz' },
+        { id: 'level_5', name: 'Niveau 5', icon: 'fa-dumbbell', desc: 'Atteindre le niveau 5' },
+        { id: 'level_10', name: 'Niveau 10', icon: 'fa-fire', desc: 'Atteindre le niveau 10' },
+        { id: 'level_max', name: 'Niveau Max', icon: 'fa-crown', desc: 'Atteindre le niveau 15' },
+        { id: 'explorer', name: 'Explorateur', icon: 'fa-map', desc: 'Jouer à 6 jeux différents' },
+        { id: 'collector', name: 'Collectionneur', icon: 'fa-globe', desc: 'Jouer à tous les jeux' },
+        { id: 'hardcore_fan', name: 'Hardcore Fan', icon: 'fa-skull', desc: 'Terminer un quiz Hardcore' },
+        { id: 'hardcore_master', name: 'Master Hardcore', icon: 'fa-trophy', desc: 'Score parfait en Hardcore' },
+        { id: 'polyglot', name: 'Polyglotte', icon: 'fa-book', desc: 'Jouer aux 4 difficultés' },
+        { id: 'fast', name: 'Rapide', icon: 'fa-bolt', desc: '50 quiz joués' },
+        { id: 'sniper', name: 'Sniper', icon: 'fa-crosshairs', desc: 'Score parfait 5×' }
+      ];
+
+      // Fonctions de hachage et données
+      const simpleHash = str => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash += str.charCodeAt(i) * (i + 1);
+        return hash.toString(36);
+      };
+
+      const getUsers = () => JSON.parse(localStorage.getItem('bq_users') || '[]');
+      const saveUsers = users => localStorage.setItem('bq_users', JSON.stringify(users));
+      const getCurrentUser = () => {
+        const username = localStorage.getItem('bq_current_user');
+        return username ? getUsers().find(u => u.username === username) : null;
+      };
+
+      const getLevelFromXP = xp => {
+        let level = 1;
+        for (let i = XP_LEVELS.length - 1; i >= 0; i--) {
+          if (xp >= XP_LEVELS[i]) {
+            level = i + 1;
+            break;
+          }
+        }
+        const nextXP = XP_LEVELS[level] || XP_LEVELS[XP_LEVELS.length - 1];
+        const currentLevelXP = XP_LEVELS[level - 1];
+        const progress = level >= 15 ? 100 : ((xp - currentLevelXP) / (nextXP - currentLevelXP)) * 100;
+        return { level, nextXP, progress };
+      };
+
+      const isGameUnlocked = (gameId, level) => level >= (GAME_UNLOCKS[gameId] || 1);
+      const isDifficultyUnlocked = (diff, level) => level >= (DIFF_UNLOCKS[diff] || 1);
+
+      // --- AUTH LOGIC ---
+      function switchAuthTab(tab) {
+        document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+        document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+        document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+        document.getElementById('signup-form').classList.toggle('hidden', tab !== 'signup');
+        document.getElementById('auth-error').classList.add('hidden');
+      }
+
+      function handleLogin() {
+        const user = document.getElementById('login-username').value.trim();
+        const pass = document.getElementById('login-password').value;
+        const errorEl = document.getElementById('auth-error');
+
+        if (!user || !pass) {
+          errorEl.textContent = "Veuillez remplir tous les champs.";
+          errorEl.classList.remove('hidden');
+          return;
+        }
+
+        const users = getUsers();
+        const found = users.find(u => u.username === user && u.passwordHash === simpleHash(pass));
+
+        if (found) {
+          localStorage.setItem('bq_current_user', user);
+          initApp();
+        } else {
+          errorEl.textContent = "Identifiants incorrects.";
+          errorEl.classList.remove('hidden');
+        }
+      }
+
+      function handleSignup() {
+        const user = document.getElementById('signup-username').value.trim();
+        const pass = document.getElementById('signup-password').value;
+        const errorEl = document.getElementById('auth-error');
+
+        if (!user || !pass) {
+          errorEl.textContent = "Veuillez remplir tous les champs.";
+          errorEl.classList.remove('hidden');
+          return;
+        }
+
+        const users = getUsers();
+        if (users.find(u => u.username === user)) {
+          errorEl.textContent = "Ce nom d'utilisateur existe déjà.";
+          errorEl.classList.remove('hidden');
+          return;
+        }
+
+        const newUser = {
+          username: user,
+          passwordHash: simpleHash(pass),
+          xp: 0,
+          level: 1,
+          quizzesPlayed: 0,
+          bestScores: {},
+          badges: [],
+          playedGames: [],
+          playedDiffs: [],
+          perfectScoresCount: 0,
+          createdAt: new Date().toISOString()
+        };
+
+        users.push(newUser);
+        saveUsers(users);
+        localStorage.setItem('bq_current_user', user);
+        initApp();
+      }
+
+      function logout() {
+        localStorage.removeItem('bq_current_user');
+        location.reload();
+      }
+
+      function resetProgress() {
+        if (!confirm("Voulez-vous vraiment réinitialiser toute votre progression ? (XP, niveaux, badges, records)")) return;
+        const user = getCurrentUser();
+        const users = getUsers();
+        const index = users.findIndex(u => u.username === user.username);
+        
+        users[index] = {
+          ...users[index],
+          xp: 0,
+          level: 1,
+          quizzesPlayed: 0,
+          bestScores: {},
+          badges: [],
+          playedGames: [],
+          playedDiffs: [],
+          perfectScoresCount: 0
+        };
+        
+        saveUsers(users);
+        location.reload();
+      }
+
+      function deleteAccount() {
+        if (!confirm("Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible.")) return;
+        const user = getCurrentUser();
+        let users = getUsers();
+        users = users.filter(u => u.username !== user.username);
+        saveUsers(users);
+        logout();
+      }
+
+      // Raccourci de test (Ctrl+Shift+R pour réinitialiser le localStorage)
+      window.addEventListener('keydown', e => {
+        if (e.ctrlKey && e.shiftKey && e.key === 'R') {
+          if (confirm("Réinitialiser TOUTES les données (tous les comptes) ?")) {
+            localStorage.clear();
+            location.reload();
+          }
+        }
+      });
+
       // --- DONNÉES DES JEUX ---
       // Structure: { gameId: { title, theme, ranks, questions: { easy: [], medium: [], hard: [], hardcore: [] } } }
 
@@ -875,7 +1356,43 @@
 
       // --- LOGIQUE ---
 
+      function initApp() {
+        const user = getCurrentUser();
+        if (!user) {
+          document.getElementById('auth-screen').classList.remove('hidden');
+          document.getElementById('select-screen').classList.add('hidden');
+          document.getElementById('top-profile-btn').classList.add('hidden');
+          return;
+        }
+
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('select-screen').classList.remove('hidden');
+        document.getElementById('top-profile-btn').classList.remove('hidden');
+        
+        // Appliquer les verrous sur les jeux
+        const userLevel = getLevelFromXP(user.xp).level;
+        Object.keys(GAME_UNLOCKS).forEach(gameId => {
+          const card = document.getElementById(`game-${gameId}`);
+          if (card) {
+            const unlocked = isGameUnlocked(gameId, userLevel);
+            card.classList.toggle('locked', !unlocked);
+            const reqLvl = card.querySelector('.req-lvl');
+            if (reqLvl) reqLvl.innerText = GAME_UNLOCKS[gameId];
+          }
+        });
+
+        goHome();
+      }
+
       function initGame(gameId) {
+        const user = getCurrentUser();
+        const userLevel = getLevelFromXP(user.xp).level;
+        
+        if (!isGameUnlocked(gameId, userLevel)) {
+          alert(`Niveau ${GAME_UNLOCKS[gameId]} requis pour débloquer ce jeu !`);
+          return;
+        }
+
         currentGameId = gameId;
         const game = gamesData[gameId];
 
@@ -885,21 +1402,76 @@
         // Aller à l'écran de difficulté
         diffGameTitle.innerText = game.title.toUpperCase();
 
-        selectScreen.classList.add("hidden");
-        resultScreen.classList.add("hidden");
-        quizScreen.classList.add("hidden");
+        // Gérer les verrous de difficulté
+        Object.keys(DIFF_UNLOCKS).forEach(diff => {
+          const btn = document.getElementById(`diff-${diff}`);
+          if (btn) {
+            const unlocked = isDifficultyUnlocked(diff, userLevel);
+            btn.disabled = !unlocked;
+            btn.classList.toggle('disabled-btn', !unlocked);
+            const lockIcon = btn.querySelector('.fa-lock') || document.createElement('i');
+            if (!unlocked) {
+              lockIcon.className = 'fas fa-lock ml-2 text-xs opacity-50';
+              if (!btn.querySelector('.fa-lock')) btn.querySelector('.text-2xl').appendChild(lockIcon);
+            } else if (btn.querySelector('.fa-lock')) {
+              btn.querySelector('.fa-lock').remove();
+            }
+          }
+        });
+
+        hideAllScreens();
         difficultyScreen.classList.remove("hidden");
         difficultyScreen.classList.add("fade-in");
       }
 
-      function showDifficultyScreen() {
-        quizScreen.classList.add("hidden");
-        resultScreen.classList.add("hidden");
-        difficultyScreen.classList.remove("hidden");
-        difficultyScreen.classList.add("fade-in");
+      function hideAllScreens() {
+        [selectScreen, difficultyScreen, quizScreen, resultScreen, 
+         document.getElementById('auth-screen'), 
+         document.getElementById('profile-screen'), 
+         document.getElementById('leaderboard-screen')].forEach(s => s.classList.add('hidden'));
+      }
+
+      function goHome() {
+        hideAllScreens();
+        selectScreen.classList.remove("hidden");
+        selectScreen.classList.add("fade-in");
+        applyTheme({
+          primary: "#c8aa6e", secondary: "#0ac8b9",
+          bgStart: "#091428", bgEnd: "#010a13",
+          fontTitle: "'Cinzel', serif", fontMain: "'Roboto', sans-serif"
+        });
+      }
+
+      function showProfile() {
+        const user = getCurrentUser();
+        if (!user) return;
+        renderProfile(user);
+        hideAllScreens();
+        const profileScreen = document.getElementById('profile-screen');
+        profileScreen.classList.remove('hidden');
+        profileScreen.classList.add('fade-in');
+        
+        // Couleur de l'avatar basée sur le nom d'utilisateur
+        const colors = ['#c8aa6e', '#0ac8b9', '#f0e6d2', '#3c3c41', '#0070ba', '#ff4655', '#45d31c', '#9a33ff', '#ffb11f', '#00e1ff'];
+        let hash = 0;
+        for (let i = 0; i < user.username.length; i++) hash += user.username.charCodeAt(i);
+        const color = colors[hash % colors.length];
+        document.getElementById('profile-avatar').style.borderColor = color;
+        document.getElementById('profile-avatar').style.color = color;
+      }
+
+      function showLeaderboard() {
+        renderLeaderboard();
+        hideAllScreens();
+        document.getElementById('leaderboard-screen').classList.remove('hidden');
+        document.getElementById('leaderboard-screen').classList.add('fade-in');
       }
 
       function selectDifficulty(level) {
+        const user = getCurrentUser();
+        const userLevel = getLevelFromXP(user.xp).level;
+        if (!isDifficultyUnlocked(level, userLevel)) return;
+
         currentDifficulty = level;
         const game = gamesData[currentGameId];
 
@@ -1031,7 +1603,6 @@
         resultScreen.classList.add("fade-in");
 
         document.getElementById("final-score").innerText = score;
-        // Met à jour le dénominateur du score final
         document.getElementById("final-score").nextElementSibling.innerText = `/${currentQuestions.length}`;
 
         const game = gamesData[currentGameId];
@@ -1039,19 +1610,18 @@
         const endTitle = document.getElementById("end-title");
         const rankDesc = document.getElementById("rank-desc");
 
-        // Calcul du pourcentage de réussite
-        const percentage = (score / currentQuestions.length) * 10;
+        const percentage = (score / currentQuestions.length);
 
         let rankTitle = "Débutant";
         let rankDescText = "Continuez à vous entraîner !";
 
-        if (percentage === 10) {
+        if (percentage === 1) {
           rankTitle = "LÉGENDE";
           rankDescText = "Un score parfait. Incroyable.";
-        } else if (percentage >= 8) {
+        } else if (percentage >= 0.8) {
           rankTitle = "Maître";
           rankDescText = "Excellent travail.";
-        } else if (percentage >= 5) {
+        } else if (percentage >= 0.5) {
           rankTitle = "Initié";
           rankDescText = "Pas mal, mais peut mieux faire.";
         }
@@ -1059,17 +1629,229 @@
         endTitle.innerText = rankTitle.toUpperCase();
         endRank.innerText = `Difficulté : ${currentDifficulty.toUpperCase()}`;
         rankDesc.innerText = rankDescText;
+
+        // --- SAUVEGARDE & XP ---
+        saveQuizResult(score, currentQuestions.length, currentDifficulty, currentGameId);
       }
+
+      function saveQuizResult(score, total, difficulty, gameId) {
+        const user = getCurrentUser();
+        if (!user) return;
+
+        const percentage = score / total;
+        
+        // Calcul XP
+        let xpEarned = score * XP_PER_ANSWER[difficulty];
+        let reason = `${score} bonnes réponses × ${XP_PER_ANSWER[difficulty]} XP`;
+        
+        // Bonus de complétion (si >= 60%)
+        if (percentage >= 0.6) {
+          const bonus = XP_BONUS_COMPLETION[difficulty];
+          xpEarned += bonus;
+          reason += ` + ${bonus} Bonus`;
+        }
+        
+        // Bonus parfait
+        if (percentage === 1) {
+          xpEarned += 50;
+          reason += ` + 50 Score Parfait`;
+          user.perfectScoresCount = (user.perfectScoresCount || 0) + 1;
+        }
+
+        const oldLevel = getLevelFromXP(user.xp).level;
+        user.xp += xpEarned;
+        user.quizzesPlayed++;
+        
+        if (!user.playedGames.includes(gameId)) user.playedGames.push(gameId);
+        if (!user.playedDiffs.includes(difficulty)) user.playedDiffs.push(difficulty);
+        
+        // Records
+        if (!user.bestScores[gameId]) user.bestScores[gameId] = {};
+        const prevBest = user.bestScores[gameId][difficulty] || 0;
+        if (score > prevBest) {
+          user.bestScores[gameId][difficulty] = score;
+        }
+
+        const { level: newLevel } = getLevelFromXP(user.xp);
+        const levelUp = newLevel > oldLevel;
+        user.level = newLevel;
+
+        checkAndGrantBadges(user);
+
+        // Sauvegarde
+        const users = getUsers();
+        const index = users.findIndex(u => u.username === user.username);
+        users[index] = user;
+        saveUsers(users);
+
+        showXpNotification(xpEarned, reason, levelUp, newLevel);
+      }
+
+      function showXpNotification(xp, reason, levelUp, newLevel) {
+        const notif = document.getElementById('xp-notification');
+        document.getElementById('xp-amount').innerText = `+${xp} XP`;
+        document.getElementById('xp-reason').innerText = reason;
+        
+        const levelUpEl = document.getElementById('xp-levelup');
+        const unlockedEl = document.getElementById('xp-unlocked');
+        
+        levelUpEl.classList.toggle('hidden', !levelUp);
+        if (levelUp) {
+          document.getElementById('xp-newlevel').innerText = `Niveau ${newLevel} 🎉`;
+          // Vérifier si un nouveau jeu est débloqué
+          const newlyUnlocked = Object.entries(GAME_UNLOCKS).some(([gid, lvl]) => lvl === newLevel);
+          unlockedEl.classList.toggle('hidden', !newlyUnlocked);
+        } else {
+          unlockedEl.classList.add('hidden');
+        }
+
+        notif.classList.add('show');
+        setTimeout(() => notif.classList.remove('show'), 3500);
+      }
+
+      function checkAndGrantBadges(user) {
+        const newBadges = [];
+        const hasBadge = id => user.badges.includes(id);
+
+        if (!hasBadge('first_quiz')) newBadges.push('first_quiz');
+        
+        const lastScore = user.bestScores[currentGameId][currentDifficulty];
+        const lastTotal = currentQuestions.length;
+        if (lastScore === lastTotal && !hasBadge('perfect_score')) newBadges.push('perfect_score');
+        
+        if (user.level >= 5 && !hasBadge('level_5')) newBadges.push('level_5');
+        if (user.level >= 10 && !hasBadge('level_10')) newBadges.push('level_10');
+        if (user.level >= 15 && !hasBadge('level_max')) newBadges.push('level_max');
+        
+        if (user.playedGames.length >= 6 && !hasBadge('explorer')) newBadges.push('explorer');
+        if (user.playedGames.length >= 12 && !hasBadge('collector')) newBadges.push('collector');
+        
+        if (currentDifficulty === 'hardcore' && !hasBadge('hardcore_fan')) newBadges.push('hardcore_fan');
+        if (currentDifficulty === 'hardcore' && lastScore === lastTotal && !hasBadge('hardcore_master')) newBadges.push('hardcore_master');
+        
+        if (user.playedDiffs.length >= 4 && !hasBadge('polyglot')) newBadges.push('polyglot');
+        if (user.quizzesPlayed >= 50 && !hasBadge('fast')) newBadges.push('fast');
+        if (user.perfectScoresCount >= 5 && !hasBadge('sniper')) newBadges.push('sniper');
+
+        if (newBadges.length > 0) {
+          user.badges = [...user.badges, ...newBadges];
+        }
+      }
+
+      function renderProfile(user) {
+        document.getElementById('profile-username').innerText = user.username;
+        const { level, nextXP, progress } = getLevelFromXP(user.xp);
+        document.getElementById('profile-level-badge').innerText = `Lv. ${level}`;
+        document.getElementById('profile-xp-text').innerText = `${user.xp} / ${nextXP} XP`;
+        document.getElementById('profile-xp-fill').style.width = `${progress}%`;
+        
+        document.getElementById('stats-quizzes').innerText = user.quizzesPlayed;
+        const unlockedCount = Object.values(GAME_UNLOCKS).filter(lvl => level >= lvl).length;
+        document.getElementById('stats-games').innerText = `${unlockedCount}/12`;
+
+        // Avatar couleur basée sur le nom
+        const colors = ['#c8aa6e', '#0ac8b9', '#ff4655', '#4caf50', '#9d4dbb', '#f27200'];
+        const colorIndex = user.username.length % colors.length;
+        document.getElementById('profile-avatar').style.color = colors[colorIndex];
+        document.getElementById('profile-avatar').style.borderColor = colors[colorIndex];
+
+        // Badges
+        const badgesGrid = document.getElementById('badges-grid');
+        badgesGrid.innerHTML = BADGES.map(badge => `
+          <div class="badge-card ${user.badges.includes(badge.id) ? '' : 'locked'}" title="${badge.desc}">
+            <i class="fas ${badge.icon} theme-text-primary"></i>
+            <div class="text-[10px] font-bold uppercase truncate">${badge.name}</div>
+          </div>
+        `).join('');
+
+        // Meilleurs scores
+        const scoresGrid = document.getElementById('best-scores-grid');
+        const bestScores = Object.entries(user.bestScores).flatMap(([gid, diffs]) => 
+          Object.entries(diffs).map(([diff, score]) => ({ gid, diff, score }))
+        ).sort((a, b) => b.score - a.score).slice(0, 6);
+
+        if (bestScores.length === 0) {
+          scoresGrid.innerHTML = '<p class="text-gray-600 text-sm">Aucun record pour le moment.</p>';
+        } else {
+          scoresGrid.innerHTML = bestScores.map(s => `
+            <div class="bg-black/40 p-3 rounded border border-gray-800 flex justify-between items-center">
+              <div class="flex items-center">
+                <i class="fas ${getGameIcon(s.gid)} mr-3 theme-text-primary"></i>
+                <div>
+                  <div class="text-sm font-bold">${gamesData[s.gid].title}</div>
+                  <div class="text-[10px] text-gray-500 uppercase">${s.diff}</div>
+                </div>
+              </div>
+              <div class="text-xl font-black">${s.score}</div>
+            </div>
+          `).join('');
+        }
+      }
+
+      function getGameIcon(gameId) {
+        const icons = { lol: 'fa-fist-raised', valorant: 'fa-crosshairs', gta: 'fa-car', minecraft: 'fa-cube', tekken: 'fa-fire', ac: 'fa-user-secret', mario: 'fa-gamepad', ratchet: 'fa-robot', zelda: 'fa-triforce', pokemon: 'fa-bolt', fortnite: 'fa-hammer', gow: 'fa-skull' };
+        return icons[gameId] || 'fa-gamepad';
+      }
+
+      function renderLeaderboard() {
+        const users = getUsers().sort((a, b) => b.xp - a.xp);
+        const currentUser = getCurrentUser();
+        const tbody = document.getElementById('leaderboard-body');
+        
+        let html = '';
+        const top10 = users.slice(0, 10);
+        
+        const renderRow = (u, index) => {
+          const isMe = u.username === currentUser.username;
+          const rank = index + 1;
+          let rankDisplay = rank;
+          if (rank === 1) rankDisplay = '🥇';
+          if (rank === 2) rankDisplay = '🥈';
+          if (rank === 3) rankDisplay = '🥉';
+          
+          return `
+            <tr class="border-b border-gray-900 ${isMe ? 'bg-primary-color/10 border-primary-color' : ''}">
+              <td class="py-4 px-4 font-bold">${rankDisplay}</td>
+              <td class="py-4 px-4">
+                <div class="font-bold ${isMe ? 'theme-text-primary' : ''}">${u.username}</div>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="bg-gray-800 px-2 py-1 rounded text-xs font-bold">Lv. ${getLevelFromXP(u.xp).level}</span>
+              </td>
+              <td class="py-4 px-4 text-right font-mono">${u.xp.toLocaleString()}</td>
+              <td class="py-4 px-4 text-right text-gray-400">${u.quizzesPlayed}</td>
+            </tr>
+          `;
+        };
+
+        top10.forEach((u, i) => html += renderRow(u, i));
+
+        // Si l'utilisateur n'est pas dans le top 10
+        const myIndex = users.findIndex(u => u.username === currentUser.username);
+        if (myIndex >= 10) {
+          html += `<tr class="border-t-2 border-dashed border-gray-800"><td colspan="5" class="text-center py-2 text-gray-600">...</td></tr>`;
+          html += renderRow(users[myIndex], myIndex);
+        }
+
+        tbody.innerHTML = html;
+      }
+
+      // Initialisation au chargement
+      window.onload = initApp;
 
       function restartQuiz() {
         selectDifficulty(currentDifficulty);
       }
 
       function goHome() {
+        hideAllScreens();
         selectScreen.classList.remove("hidden");
-        difficultyScreen.classList.add("hidden");
-        quizScreen.classList.add("hidden");
-        resultScreen.classList.add("hidden");
+        selectScreen.classList.add("fade-in");
+        applyTheme({
+          primary: "#c8aa6e", secondary: "#0ac8b9",
+          bgStart: "#091428", bgEnd: "#010a13",
+          fontTitle: "'Cinzel', serif", fontMain: "'Roboto', sans-serif"
+        });
       }
     </script>
   </body>

@@ -1,0 +1,74 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@400;500;900&family=Press+Start+2P&family=Oswald:wght@700&family=Luckiest+Guy&family=Rye&display=swap");
+
+:root {
+  --bg-color: #e0e0e0;
+  --text-color: #444;
+  --primary-color: #6d5dfc;
+  --secondary-color: #ff4655;
+  
+  /* Neumorphism shadows */
+  --nm-shadow-out: 9px 9px 16px rgb(163, 177, 198, 0.6), -9px -9px 16px rgba(255, 255, 255, 0.5);
+  --nm-shadow-in: inset 3px 3px 7px rgba(136, 165, 191, 0.48), inset -3px -3px 7px #ffffff;
+}
+
+/* Dark mode Neumorphism */
+.dark {
+  --bg-color: #1a1a1a;
+  --text-color: #f0e6d2;
+  --nm-shadow-out: 8px 8px 16px #0d0d0d, -8px -8px 16px #272727;
+  --nm-shadow-in: inset 4px 4px 8px #0d0d0d, inset -4px -4px 8px #272727;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Roboto', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.nm-flat {
+  background: var(--bg-color);
+  box-shadow: var(--nm-shadow-out);
+}
+
+.nm-inset {
+  background: var(--bg-color);
+  box-shadow: var(--nm-shadow-in);
+}
+
+.nm-btn {
+  background: var(--bg-color);
+  box-shadow: var(--nm-shadow-out);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.nm-btn:active {
+  box-shadow: var(--nm-shadow-in);
+}
+
+.nm-btn:hover {
+  transform: translateY(-2px);
+}
+
+.nm-card {
+  border-radius: 20px;
+  padding: 20px;
+  background: var(--bg-color);
+  box-shadow: var(--nm-shadow-out);
+}
+
+.nm-input {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  background: var(--bg-color);
+  box-shadow: var(--nm-shadow-in);
+  outline: none;
+  width: 100%;
+}
